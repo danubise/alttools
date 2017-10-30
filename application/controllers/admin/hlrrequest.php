@@ -27,13 +27,14 @@ class Hlrrequest extends Core_controller {
         if(isset($_POST['parametr'])){
             $parametr= $_POST['parametr'];
             $property=$this->db->select("* from `hlr_property` ", true);
-            $prop = array();
+            $prop = "";
+
             foreach($property as $index=>$keyValueArray){
-                $prop[$keyValueArray['propery']] = $keyValueArray['value']
+                $prop[$keyValueArray['propery']] = $keyValueArray['value'];
             }
             printarray($property);
             printarray($prop);
-            
+
             $url = "http://hlr.lanck.alarislabs.com/hlr.cgi?login=login&password=password&dnis=".$parametr['number'] ;
             $editedkeys=$this->db->select("* from `hlr_keys` ORDER BY `id` ASC");
             //$jsonString = file_get_contents($url);
