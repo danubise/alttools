@@ -26,7 +26,7 @@ class Hlrrequest extends Core_controller {
         $number ="";
         if(isset($_POST['parametr'])){
             $parametr= $_POST['parametr'];
-            $property=$this->db->select("* from `hlr_property` ", true);
+            $property=$this->db->select("* from `hlr_property` ",true);
             $prop = "";
 
             foreach($property as $index=>$keyValueArray){
