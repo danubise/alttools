@@ -34,18 +34,38 @@ class Hlrrequest extends Core_controller {
             }
 
             $url = "http://hlr.lanck.alarislabs.com/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
-            $editedkeys=$this->db->select("* from `hlr_keys` ORDER BY `id` ASC");
+            $editedKeysList=$this->db->select("* from `hlr_keys`");
+            $editedKeysArray = array();
+
+            foreach($property as $index=>$keyValueArray){
+                $editedKeysArray[$keyValueArray['original']] = $keyValueArray['edited'];
+            }
+            printarray($editedKeysArray);
             //$jsonString = file_get_contents($url);
             $jsonString = "{\"destination\":\"79811613861\",\"id\":\"xxta3hqi62n9urumdmzm\",\"stat\":\"DELIVRD\",\"IMSI\":\"250010027494861\",\"err\":\"0\",\"orn\":\"MTS (Mobile TeleSystems)\",\"pon\":\"MTS (Mobile TeleSystems)\",\"ron\":\"MTS (Mobile TeleSystems)\",\"roc\":\"RU\",\"mccmnc\":\"25001\",\"rcn\":\"Russian Federation\",\"ppm\":\"20\",\"onp\":\"9811\",\"ocn\":\"Russian Federation\",\"occ\":\"RU\",\"ocp\":\"7\",\"is_ported\":\"false\",\"rnp\":\"916\",\"rcp\":\"7\",\"is_roaming\":\"false\",\"pnp\":\"9145\",\"pcn\":\"Russian Federation\",\"pcp\":\"7\",\"pcc\":\"RU\"}";
             $arrayResponse = json_decode($jsonString , true);
+            foreach($arrayResponse as $key=>$value){
+                $this->db->insert('hlr_temp', array("original"=>$key, "value"=>$value));
+            }
+            $arrayWithEditedName = array();
             unset($arrayResponse['id']);
+
+            foreach($arrayResponse as $key=>$value){
+                if(isset($editedKeysArray[$key])){
+                    $arrayWithEditedName[$key] = $editedKeysArray[$key];
+                }else{
+                    $arrayWithEditedName[$key] = $value;
+                }
+            }
+
             $this->view(
                 array(
                     'view' => 'hlr/make',
                     'var' => array(
                         'arrayResponse' => $arrayResponse,
                         'parametr' => $parametr,
-                        'url' => $url
+                        'url' => $url,
+                        'editedkeys' => $arrayWithEditedName
                     )
                 )
             );
@@ -57,6 +77,10 @@ class Hlrrequest extends Core_controller {
                 )
             );
         }
+    }
+
+    public function editFieldName(){
+// SELECT * FROM `hlr_temp` as hlrt INNER JOIN `hlr_keys`  as hlrk
     }
 
     public function logout() {
