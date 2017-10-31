@@ -16,7 +16,7 @@
               ?>
               <tr>
                 <td><?=$valuesArray['original']?>&nbsp;</td>
-                <td><input type='text' name='edited[$key]' value='<?=$valuesArray['edited']?>'>&nbsp;</td>
+                <td><input type='text' name='edited[<?=$valuesArray['original']?>]' value='<?=$valuesArray['edited']?>'>&nbsp;</td>
                 <td><?=$valuesArray['value']?>&nbsp;</td>
               </tr>
             <?php

@@ -17,6 +17,10 @@
             <td>&nbsp;</td>
             <td>
                 <button class="btn btn-primary">Выполнить</button></td>
+            <td>&nbsp;</td>
+            <td>
+                <a href="<?=baseurl('hlrrequest/editFieldName/')?>" class="btn btn-success">Редактировать</a>
+                </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
     </table>
@@ -43,11 +47,11 @@
         </thead>
         <tbody>
         <?
-        if(isset($arrayResponse)):
-            foreach($arrayResponse as $key=>$value):
+        if(isset($arrayWithEditedName)):
+            foreach($arrayWithEditedName as $key=>$value):
               ?>
               <tr>
-                  <td><input type='hidden' name='' value='<?=$key?>'><?=$key?>&nbsp;</td>
+                  <td><?=$key?>&nbsp;</td>
                   <td><?=$value?>&nbsp;</td>
               </tr>
             <?php
