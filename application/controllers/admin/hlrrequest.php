@@ -84,6 +84,15 @@ class Hlrrequest extends Core_controller {
 //SELECT hlrt.original, hlrk.edited, hlrt.value FROM `hlr_temp` as hlrt LEFT JOIN `hlr_keys`  as hlrk USING(`original`)
         $joinTables = $this->db->select("hlrt.original, hlrk.edited, hlrt.value FROM `hlr_temp` as hlrt LEFT JOIN `hlr_keys`  as hlrk USING(`original`)",true);
         printarray($joinTables);
+        $this->view(
+            array(
+                'view' => 'hlr/edit',
+                'var' => array(
+                'joinTables' => $joinTables
+                )
+            )
+        );
+
     }
 
     public function logout() {
