@@ -42,9 +42,9 @@ define('SITE_TITLE', '');
 define('db_lib', libs.'mysql.php');
 $_config['mysql'] = array(
     'host' => 'localhost',
-    'user' => 'test',
-    'password' => 'test',
-    'base' => 'callwaytest'
+    'user' => 'tools',
+    'password' => 'tools',
+    'base' => 'tools'
 );
 
 ///////////////////////////////////////////////////////////////
