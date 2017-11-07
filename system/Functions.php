@@ -152,7 +152,7 @@ function sendMiscallReport(){
     $mail->Password = "secret"; // SMTP password
     $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
     $mail->Port = 587;                                    // TCP port to connect to
-
+    $mail->CharSet = 'UTF-8';
     $mail->From = "zvonki.ats@yandex.ru";
     $mail->FromName = "zvonki.ats";
     $mail->AddAddress("danubise@gmail.com", "danubise");
@@ -162,7 +162,7 @@ function sendMiscallReport(){
 
     $mail->Subject = "Отчет о пропущеных звонках";
 
-    $mail->Body    = "This is the HTML message body in bold!";
+    $mail->Body    = formatHtmlPage();
     $mail->AltBody = "";
 
     if(!$mail->Send())
@@ -175,7 +175,7 @@ function sendMiscallReport(){
 }
 function formatHtmlPage(){
     $lastMiscallCDR = getMiscallReport();
-    $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><tr><h4>Пропущенные номера</h4></tr><thead><tr>".
+    $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
                 "<th>Номер</th><th>Время</th><th>Канал</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             $htmlCode.="<tr><td>"
@@ -268,7 +268,6 @@ function getMiscallReport(){
         if($valueArray['did'] == "79263123727" ) $lastMiscallCDR[$src]['did']="KOMPLEKT msk";
         if($valueArray['did'] == "777736" ) $lastMiscallCDR[$src]['did']="KOMPLEKT sochi";
         if($valueArray['did'] == "79282427747" ) $lastMiscallCDR[$src]['did']="KOMPLEKT sochi";
-        if($valueArray['did'] == "777703" ) $lastMiscallCDR[$src]['did']="KOMPLEKT stav";
         if($valueArray['did'] == "777703" ) $lastMiscallCDR[$src]['did']="KOMPLEKT stav";
         if($valueArray['did'] == "79281113070" ) $lastMiscallCDR[$src]['did']="KOMPLEKT-UG rst";
         if($valueArray['did'][0] == "7" &&

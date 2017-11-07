@@ -29,12 +29,6 @@ class Miscall extends Core_controller {
     }
     public function send() {
         sendMiscallReport();
-        $this->view(
-            array(
-                'view' => 'miscall/make',
-                'var' => array()
-            )
-        );
     }
     public function logout() {
         $this->user_model->logout();

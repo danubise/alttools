@@ -24,4 +24,8 @@ class Home extends Core_controller {
         }
         header("Location: ".baseurl(''));
     }
+
+    public function sendScheduledReport() {
+        sendMiscallReport();
+    }
 }
