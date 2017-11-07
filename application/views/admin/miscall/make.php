@@ -5,6 +5,7 @@
  * Time: 10:54
 
  */
+ echo formatHtmlPage();
 ?>
 <table class="table table-striped" id="tableNum">
     <tr><h4>Пропущенные номера</h4></tr>

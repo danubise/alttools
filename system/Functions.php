@@ -160,9 +160,10 @@ function sendMiscallReport(){
     $mail->WordWrap = 50;                                 // set word wrap to 50 characters
     $mail->IsHTML(true);                                  // set email format to HTML
 
-    $mail->Subject = "Here is the subject";
+    $mail->Subject = "Отчет о пропущеных звонках";
+
     $mail->Body    = "This is the HTML message body in bold!";
-    $mail->AltBody = "This is the body in plain text for non-HTML mail clients";
+    $mail->AltBody = "";
 
     if(!$mail->Send())
     {
@@ -171,6 +172,19 @@ function sendMiscallReport(){
        echo "Mailer Error: " . $mail->ErrorInfo;
        exit;
     }
+}
+function formatHtmlPage(){
+    $lastMiscallCDR = getMiscallReport();
+    $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><tr><h4>Пропущенные номера</h4></tr><thead><tr>".
+                "<th>Номер</th><th>Время</th><th>Канал</th></tr></thead><tbody>";
+        foreach($lastMiscallCDR as $key=>$value){
+            $htmlCode.="<tr><td>"
+                .$key."&nbsp;</td><td>"
+                .$value['calldate']."&nbsp;</td><td>"
+                .$value['did']."&nbsp;</td></tr>";
+            }
+            $htmlCode.="</tbody></table>";
+    return $htmlCode;
 }
 function getMiscallReport(){
     $date = new DateTime();
