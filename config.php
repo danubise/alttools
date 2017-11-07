@@ -47,6 +47,13 @@ $_config['mysql'] = array(
     'base' => 'tools'
 );
 
+$_config_CDR['mysql'] = array(
+    'host' => 'localhost',
+    'user' => 'freepbxuser',
+    'password' => 'f3c2b8bd0fa891e5ddeb040a9983148e',
+    'base' => 'asteriskcdrdb'
+);
+
 ///////////////////////////////////////////////////////////////
 /**
  *

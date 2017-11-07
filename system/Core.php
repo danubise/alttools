@@ -15,9 +15,11 @@
         private static $instance;
 
         public function __construct() {
+
+            global $_config_CDR;
             self::$instance =& $this;
             $this->db = connect_mysql();
-
+            $this->cdrdb = connect_mysql($_config_CDR);
             $this->set_config('system');
             $this->set_config('route');
             $this->load_model('user_model');

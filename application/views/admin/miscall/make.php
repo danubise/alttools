@@ -1,63 +1,33 @@
 <?php
 /**
- * User: slava
+ * User: danubise@gmail.com
  * Date: 30.10.17
  * Time: 10:54
 
  */
-
 ?>
-<form method="post"  enctype="multipart/form-data" action="<?=baseurl('hlrrequest/make/')?>">
-    <table>
+<table class="table table-striped" id="tableNum">
+    <tr><h4>Пропущенные номера</h4></tr>
+    <thead>
         <tr>
-            <td>
-                Введите номер телефона:&nbsp;</td>
-            <td>
-                <input name="parametr[number]" class="form-control" value="<?=$parametr['number']?>"></td>
-            <td>&nbsp;</td>
-            <td>
-                <button class="btn btn-primary">Выполнить</button></td>
-            <td>&nbsp;</td>
-            <td>
-                <a href="<?=baseurl('hlrrequest/editFieldName/')?>" class="btn btn-success">Редактировать</a>
-                </td>
+            <th>Номер</th>
+            <th>Время</th>
+            <th>Канал</th>
         </tr>
-        <tr><td>&nbsp;</td></tr>
-    </table>
-    <table>
-        <tr>
-            <td><?=$url?>&nbsp;</td>
-        </tr>
-    </table>
-</form>
-<?php
-    if(!isset($arrayResponse)){
-        die;
-    }
-?>
-<form method="post"  enctype="multipart/form-data" action="<?=baseurl('hlrrequest/make/')?>">
-
-    <table class="table table-striped" id="tableNum">
-        <tr><h4>Результат ответа</h4></tr>
-        <thead>
-            <tr>
-                <th>Ключ</th>
-                <th>Значение</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?
-        if(isset($arrayWithEditedName)):
-            foreach($arrayWithEditedName as $key=>$value):
-              ?>
-              <tr>
-                  <td><?=$key?>&nbsp;</td>
-                  <td><?=$value?>&nbsp;</td>
-              </tr>
-            <?php
-            endforeach;
-        endif;
-        ?>
-        </tbody>
-    </table>
-</form>
+    </thead>
+    <tbody>
+    <?
+    if(isset($lastMiscallCDR)):
+        foreach($lastMiscallCDR as $key=>$value):
+          ?>
+          <tr>
+              <td><?=$key?>&nbsp;</td>
+              <td><?=$value['calldate']?>&nbsp;</td>
+              <td><?=$value['did']?>&nbsp;</td>
+          </tr>
+        <?php
+        endforeach;
+    endif;
+    ?>
+    </tbody>
+</table>

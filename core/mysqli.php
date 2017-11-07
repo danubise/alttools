@@ -50,6 +50,10 @@ class db extends mysqli {
      * @param string $db имя базы данных
      * @param bool $debug флаг режима дебага
      */
+     public function version(){
+         return "This is mysqli wraper";
+     }
+
     public function __construct($host = '', $user = '', $pass='', $db='', $debug = false) {
         if(is_array($host)) {
             $config = $host;
@@ -60,7 +64,7 @@ class db extends mysqli {
             $debug = (empty($config['debug'])?false:$config['debug']);
         }
         $this->DEBUG = ($debug?true:false);
-        if(!empty($host) and !empty($user) and !empty($pass)) {
+        if(!empty($host) and !empty($user)) {
             parent::__construct($host, $user, $pass, $db);
             if (mysqli_connect_error()) {
                 $msg = 'Ошибка подключения: '.$this->errnoText(mysqli_connect_errno()).' (host: '.$host.'; user: '.$user.'; db: '.$db.')';
@@ -505,4 +509,6 @@ class db extends mysqli {
         }
         return $structure;
     }
+
+
 } 
