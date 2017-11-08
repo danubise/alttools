@@ -210,13 +210,14 @@ function getMiscallReport(){
                 $src[0] ="8";
             }
             $lastMiscallCDR[$src]=$valueArray;
-            if($valueArray['did'] != ""){
+            if(strlen($valueArray['did']) > 0 ){
                 $lastMiscallCDR[$src]['did']=$valueArray['did'];
             }
 
         }
     }
-
+    printarray($lastMiscallCDR);
+    die;
     $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` ASC ");
 
     $lastAnsweredcallCDR = array();
