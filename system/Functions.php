@@ -199,7 +199,7 @@ function getMiscallReport(){
         $_config_CDR['mysql']['base']
     );
     $cdrdb->set_charset("utf8");
-    $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr WHERE calldate>'".$days4."' AND  disposition = 'NO ANSWER' ORDER BY `uniqueid` ASC ");
+    $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr WHERE calldate>'".$days4."' AND  disposition = 'NO ANSWER' ORDER BY `calldate`, `uniqueid` ASC ");
 
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -213,7 +213,7 @@ function getMiscallReport(){
         }
     }
 
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `uniqueid` ASC ");
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` ASC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -226,7 +226,7 @@ function getMiscallReport(){
             $lastAnsweredcallCDR[$src]=$valueArray['uniqueid'];
          }
     }
-    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid FROM cdr WHERE  calldate>'".$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `uniqueid` ASC ");
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid FROM cdr WHERE  calldate>'".$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` ASC ");
 
     $lastDialAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
