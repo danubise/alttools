@@ -205,7 +205,7 @@ function getMiscallReport(){
 
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
-
+        echo $valueArray['uniqueid']."<br>";
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
             $src = $valueArray['src'];
             if($src[0] =="7" && strlen($src)==11){
