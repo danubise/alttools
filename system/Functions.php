@@ -209,10 +209,17 @@ function getMiscallReport(){
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
             }
-            $lastMiscallCDR[$src]=$valueArray;
-            if(strlen($valueArray['did']) > 0 ){
-                $lastMiscallCDR[$src]['did']=$valueArray['did'];
+            if(isset($lastMiscallCDR[$src]){
+                if(strlen($valueArray['did']) > 0 ){
+                    $lastMiscallCDR[$src]['did']=$valueArray['did'];
+                }
+            }else{
+                $lastMiscallCDR[$src]=$valueArray;
             }
+
+            //if(strlen($valueArray['did']) > 0 ){
+            //    $lastMiscallCDR[$src]['did']=$valueArray['did'];
+            //}
 
         }
     }
