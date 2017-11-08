@@ -200,7 +200,7 @@ function getMiscallReport(){
     );
     $cdrdb->set_charset("utf8");
     $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
-        WHERE  `clid` LIKE  '%9889557998%' AND calldate>'".$days4."' AND  disposition = 'NO ANSWER'
+        WHERE  `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
         ORDER BY `calldate`, `uniqueid` DESC ");
 
     $lastMiscallCDR = array();
