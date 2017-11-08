@@ -179,7 +179,7 @@ function formatHtmlPage(){
                 "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             $htmlCode.="<tr><td>"
-                .$key."&nbsp;</td><td>"
+                .$value['src']."&nbsp;</td><td>"
                 .$value['calldate']."&nbsp;</td><td>"
                 .$value['did']."&nbsp;</td><td>"
                 .$value['didname']."&nbsp;</td></tr>";
@@ -244,39 +244,52 @@ function getMiscallReport(){
         }
     }
 
+    $missedcalls = array();
+    $i=0;
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastDialAnsweredcallCDR[$src]> $valueArray['calldate']){
-            unset($lastMiscallCDR[$src]);
+        if($lastDialAnsweredcallCDR[$src]< $valueArray['calldate']){
+            $missedcalls[$i] = $valueArray;
+            $i++;
         }
     }
 
-    foreach($lastMiscallCDR as $src=>$valueArray){
-        if($valueArray['did'] == "777705") $lastMiscallCDR[$src]['didname']="PK krim";
-        if($valueArray['did'] == "777708") $lastMiscallCDR[$src]['didname']="PK krnd";
-        if($valueArray['did'] == "79280390600") $lastMiscallCDR[$src]['didname']="PK krnd";
-        if($valueArray['did'] == "79263123712") $lastMiscallCDR[$src]['didname']="PK msk";
-        if($valueArray['did'] == "777706" || $valueArray['did'] == "777707") $lastMiscallCDR[$src]['didname']="PK rostov";
-        if($valueArray['did'] == "777729" || $valueArray['did'] == "777730") $lastMiscallCDR[$src]['didname']="Ross-Biz";
-        if($valueArray['did'] == "777727" || $valueArray['did'] == "777728") $lastMiscallCDR[$src]['didname']="Rostov-holod";
-        if($valueArray['did'] == "777701" ) $lastMiscallCDR[$src]['didname']="PK sochi";
-        if($valueArray['did'] == "79282427127" ) $lastMiscallCDR[$src]['didname']="PK sochi";
-        if($valueArray['did'] == "777702" ) $lastMiscallCDR[$src]['didname']="PK stavropol";
-        if($valueArray['did'] == "777702" ) $lastMiscallCDR[$src]['didname']="PK stavropol";
-        if($valueArray['did'] >= "777731" && $valueArray['did'] <= "777735") $lastMiscallCDR[$src]['didname']="KOMPLEKT krd";
-        if($valueArray['did'] == "777704" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT krim";
-        if($valueArray['did'] == "79282073771" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT krd";
-        if($valueArray['did'] == "79263123727" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT msk";
-        if($valueArray['did'] == "79263123727" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT msk";
-        if($valueArray['did'] == "777736" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT sochi";
-        if($valueArray['did'] == "79282427747" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT sochi";
-        if($valueArray['did'] == "777703" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT stav";
-        if($valueArray['did'] == "79281113070" ) $lastMiscallCDR[$src]['didname']="KOMPLEKT-UG rst";
+    usort($missedcalls, 'sortByDate');
+    foreach($missedcalls as $src=>$valueArray){
+        if($valueArray['did'] == "777705") $missedcalls[$src]['didname']="PK krim";
+        if($valueArray['did'] == "777708") $missedcalls[$src]['didname']="PK krnd";
+        if($valueArray['did'] == "79280390600") $missedcalls[$src]['didname']="PK krnd";
+        if($valueArray['did'] == "79263123712") $missedcalls[$src]['didname']="PK msk";
+        if($valueArray['did'] == "777706" || $valueArray['did'] == "777707") $missedcalls[$src]['didname']="PK rostov";
+        if($valueArray['did'] == "777729" || $valueArray['did'] == "777730") $missedcalls[$src]['didname']="Ross-Biz";
+        if($valueArray['did'] == "777727" || $valueArray['did'] == "777728") $missedcalls[$src]['didname']="Rostov-holod";
+        if($valueArray['did'] == "777701" ) $missedcalls[$src]['didname']="PK sochi";
+        if($valueArray['did'] == "79282427127" ) $missedcalls[$src]['didname']="PK sochi";
+        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
+        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
+        if($valueArray['did'] >= "777731" && $valueArray['did'] <= "777735") $missedcalls[$src]['didname']="KOMPLEKT krd";
+        if($valueArray['did'] == "777704" ) $missedcalls[$src]['didname']="KOMPLEKT krim";
+        if($valueArray['did'] == "79282073771" ) $missedcalls[$src]['didname']="KOMPLEKT krd";
+        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
+        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
+        if($valueArray['did'] == "777736" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
+        if($valueArray['did'] == "79282427747" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
+        if($valueArray['did'] == "777703" ) $missedcalls[$src]['didname']="KOMPLEKT stav";
+        if($valueArray['did'] == "79281113070" ) $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
         if($valueArray['did'][0] == "7" &&
             $valueArray['did'][1] ==  "7" &&
             $valueArray['did'][2] == "0" &&
-            $valueArray['did'][3] !== "") $lastMiscallCDR[$src]['didname']="KOMPLEKT-UG rst";
-        if($valueArray['did'] >= "777721" && $valueArray['did'] <= "777726") $lastMiscallCDR[$src]['didname']="KOMPLEKT-UG";
+            $valueArray['did'][3] !== "") $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
+        if($valueArray['did'] >= "777721" && $valueArray['did'] <= "777726") $missedcalls[$src]['didname']="KOMPLEKT-UG";
 
     }
-    return $lastMiscallCDR;
+    return $missedcalls;
+}
+
+function sortByDate($a, $b)
+{
+    $a = $a['calldate'];
+    $b = $b['calldate'];
+
+    if ($a == $b) return 0;
+    return ($a > $b) ? -1 : 1;
 }
