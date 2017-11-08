@@ -210,6 +210,10 @@ function getMiscallReport(){
                 $src[0] ="8";
             }
             $lastMiscallCDR[$src]=$valueArray;
+            if($valueArray['did'] != ""){
+                $lastMiscallCDR[$src]['did']=$valueArray['did'];
+            }
+
         }
     }
 
