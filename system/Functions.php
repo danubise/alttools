@@ -209,7 +209,7 @@ function getMiscallReport(){
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
             }
-            if(isset($lastMiscallCDR[$src]){
+            if(isset($lastMiscallCDR[$src])){
                 if(strlen($valueArray['did']) > 0 ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
