@@ -202,7 +202,8 @@ function getMiscallReport(){
     $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
         WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
         ORDER BY `calldate`, `uniqueid` DESC ");
-    echo $cdrdb->last;
+    //echo $cdrdb->last;
+    //printarray($allCdrRecodrs);
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
@@ -214,13 +215,16 @@ function getMiscallReport(){
                 if(strlen($valueArray['did']) > 0 ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
+                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
             }else{
                 $lastMiscallCDR[$src]=$valueArray;
             }
         }
     }
-
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` ASC ");
+    //printarray($lastMiscallCDR);
+    //die;
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -232,7 +236,7 @@ function getMiscallReport(){
             $lastAnsweredcallCDR[$src]=$valueArray['uniqueid'];
          }
     }
-    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid FROM cdr WHERE  calldate>'".$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` ASC ");
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid FROM cdr WHERE  calldate>'".$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastDialAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -253,8 +257,11 @@ function getMiscallReport(){
 
     $missedcalls = array();
     $i=0;
+    //printarray($lastMiscallCDR);
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastDialAnsweredcallCDR[$src]< $valueArray['uniqueid']){
+        if($lastDialAnsweredcallCDR[$src]>= $valueArray['uniqueid']){
+
+        }else{
             $missedcalls[$i] = $valueArray;
             $i++;
         }
