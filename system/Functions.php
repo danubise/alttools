@@ -192,31 +192,56 @@ function getMiscallReport(){
     );
     $cdrdb->set_charset("utf8");
     $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
-        WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
+        WHERE `calldate`>'".$days4."' AND ( (disposition = 'NO ANSWER' OR disposition = 'BUSY')
+        OR (( dst > 1000 AND dst < 10000000000 OR dst = 's') AND   disposition = 'ANSWERED' ))
         ORDER BY `calldate`, `uniqueid` DESC ");
-    //echo $cdrdb->last;
-    //printarray($allCdrRecodrs);
+
+
+
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
             $src = $valueArray['src'];
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
+            }elseif( $src[0] =="+"){
+
+                if($src[1] =="7"){
+                    $src_new ="8";
+                    for($i =2; $i < strlen($src); $i++ ){
+                        $src_new.= $src[$i];
+                    }
+                    $src=$src_new;
+                }else{
+                    for($i =1; $i < strlen($src); $i++ ){
+                        $src_new.= $src[$i];
+                    }
+                    $src=$src_new;
+                }
+
             }
+            //$a = in_array($src, $lastMiscallCDR);
+            //echo "aaaaa ='".$src."'  (a= ".$a.")<br>";
             if(isset($lastMiscallCDR[$src])){
+            //if(in_array($src, $lastMiscallCDR)){
                 if(strlen($valueArray['did']) > 0 ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
                 $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
                 $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
             }else{
+
                 $lastMiscallCDR[$src]=$valueArray;
+                //echo $src . " *** " . $valueArray . " *** ". $lastMiscallCDR[$src];
             }
         }
     }
     //printarray($lastMiscallCDR);
     //die;
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'
+    AND  disposition = 'ANSWERED'
+    AND ( dst < 1000 OR dst > 10000000000) AND dst != 's'
+    ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -224,7 +249,22 @@ function getMiscallReport(){
              $src = $valueArray['src'];
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
-            }
+            }elseif( $src[0] =="+"){
+
+                 if($src[1] =="7"){
+                     $src_new ="8";
+                     for($i =2; $i < strlen($src); $i++ ){
+                         $src_new.= $src[$i];
+                     }
+                     $src=$src_new;
+                 }else{
+                     for($i =1; $i < strlen($src); $i++ ){
+                         $src_new.= $src[$i];
+                     }
+                     $src=$src_new;
+                 }
+
+             }
             $lastAnsweredcallCDR[$src]=$valueArray['uniqueid'];
          }
     }
