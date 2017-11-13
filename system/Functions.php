@@ -142,7 +142,8 @@ function logger($data,$id=""){
 }
 function sendMiscallReport(){
     $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
-
+    $date = new DateTime();
+    $today =  gmdate("Y-m-d H:i:s", $date->getTimestamp());
     //Server settings
     $mail->SMTPDebug = 2;
     $mail->IsSMTP();                                      // set mailer to use SMTP
@@ -156,11 +157,12 @@ function sendMiscallReport(){
     $mail->From = "zvonki.ats@yandex.ru";
     $mail->FromName = "zvonki.ats";
     $mail->AddAddress("danubise@gmail.com", "danubise");
+    //$mail->AddAddress("teplotek-ug@yandex.ru", "teplotek-ug");
 
     $mail->WordWrap = 50;                                 // set word wrap to 50 characters
     $mail->IsHTML(true);                                  // set email format to HTML
 
-    $mail->Subject = "Отчет о пропущеных звонках";
+    $mail->Subject = "Пропущенные звонки ".$today;
 
     $mail->Body    = formatHtmlPage();
     $mail->AltBody = "";
@@ -289,6 +291,7 @@ function getMiscallReport(){
         if($valueArray['did'] == "79282427747" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
         if($valueArray['did'] == "777703" ) $missedcalls[$src]['didname']="KOMPLEKT stav";
         if($valueArray['did'] == "79281113070" ) $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
+        if($valueArray['did'] == "777713" ) $missedcalls[$src]['didname']="KOMPLEKT-UG";
         if($valueArray['did'][0] == "7" &&
             $valueArray['did'][1] ==  "7" &&
             $valueArray['did'][2] == "0" &&
