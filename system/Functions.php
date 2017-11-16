@@ -129,8 +129,23 @@ function utf8_to_cp1251($s)
         return $s;
     }
 }
+function settingsArrayConvert($arrayFromMysql){
+    $settings = array();
+    foreach($arrayFromMysql as $key=>$valueArray){
+        $settings[$valueArray['key']]= $valueArray['value'];
+    }
+    return $settings;
+}
+
+function getSettings(){
+    $db = connect_mysql();
+    $settings = settingsArrayConvert($db->select( "* FROM  `settings`", true ));
+    return $settings;
+}
 
 function sendMiscallReport(){
+    $settings = getSettings();
+
     $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
     $date = new DateTime();
     $today =  gmdate("Y-m-d H:i:s", $date->getTimestamp());
@@ -139,15 +154,14 @@ function sendMiscallReport(){
     $mail->IsSMTP();                                      // set mailer to use SMTP
     $mail->Host = "smtp.yandex.com";  // specify main and backup server
     $mail->SMTPAuth = true;     // turn on SMTP authentication
-    $mail->Username = "zvonki.ats";  // SMTP username
-    $mail->Password = "secret"; // SMTP password
+    $mail->Username = $settings['sendFromLogin'];  // SMTP username
+    $mail->Password = $settings['sendFromPassword']; // SMTP password
     $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
     $mail->Port = 587;                                    // TCP port to connect to
     $mail->CharSet = 'UTF-8';
-    $mail->From = "zvonki.ats@yandex.ru";
-    $mail->FromName = "zvonki.ats";
-    $mail->AddAddress("danubise@gmail.com", "danubise");
-    //$mail->AddAddress("teplotek-ug@yandex.ru", "teplotek-ug");
+    $mail->From = $settings['sendFromEmail'];
+    $mail->FromName = $settings['sendFromLogin'];
+    $mail->AddAddress($settings['sendToEmail'], $settings['sendToName']);
 
     $mail->WordWrap = 50;                                 // set word wrap to 50 characters
     $mail->IsHTML(true);                                  // set email format to HTML
