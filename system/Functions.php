@@ -129,17 +129,7 @@ function utf8_to_cp1251($s)
         return $s;
     }
 }
-function logger($data,$id=""){
-    $file="/var/log/asterisk/agi.log";
-    $td=date('Y-m-d H:i:s');
-    $scriptname="class_dm.php";
 
-    $head="$td $scriptname $id ";
-    $data=$head.$data;
-    $data=str_replace("\n","\n".$head,$data);
-    $data=trim($data)."\n";
-    file_put_contents($file, $data, FILE_APPEND );
-}
 function sendMiscallReport(){
     $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
     $date = new DateTime();
@@ -204,14 +194,30 @@ function getMiscallReport(){
     $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
         WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
         ORDER BY `calldate`, `uniqueid` DESC ");
-    //echo $cdrdb->last;
-    //printarray($allCdrRecodrs);
+
+
+
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
             $src = $valueArray['src'];
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
+            }elseif( $src[0] =="+"){
+
+                if($src[1] =="7"){
+                    $src_new ="8";
+                    for($i =2; $i < strlen($src); $i++ ){
+                        $src_new.= $src[$i];
+                    }
+                    $src=$src_new;
+                }else{
+                    for($i =1; $i < strlen($src); $i++ ){
+                        $src_new.= $src[$i];
+                    }
+                    $src=$src_new;
+                }
+
             }
             if(isset($lastMiscallCDR[$src])){
                 if(strlen($valueArray['did']) > 0 ){
@@ -234,7 +240,22 @@ function getMiscallReport(){
              $src = $valueArray['src'];
             if($src[0] =="7" && strlen($src)==11){
                 $src[0] ="8";
-            }
+            }elseif( $src[0] =="+"){
+
+                 if($src[1] =="7"){
+                     $src_new ="8";
+                     for($i =2; $i < strlen($src); $i++ ){
+                         $src_new.= $src[$i];
+                     }
+                     $src=$src_new;
+                 }else{
+                     for($i =1; $i < strlen($src); $i++ ){
+                         $src_new.= $src[$i];
+                     }
+                     $src=$src_new;
+                 }
+
+             }
             $lastAnsweredcallCDR[$src]=$valueArray['uniqueid'];
          }
     }
