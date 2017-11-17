@@ -193,6 +193,25 @@ function formatHtmlPage(){
             $htmlCode.="</tbody></table>";
     return $htmlCode;
 }
+
+function checkForCallbackEnable(){
+    $sortedMiscallReport = getMiscallReport();
+    $db = connect_mysql();
+    $callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
+    $callBackNumbersAsKey = array();
+    foreach($callBackEnableFrom as $key => $phonenumber){
+        $callBackNumbersAsKey[$phonenumber] = 0;
+    }
+    foreach($sortedMiscallReport as $id=> $arrayData){
+        if(isset($callBackNumbersAsKey[$arrayData['src']])){
+            $sortedMiscallReport[$id]['callBackEnable'] = 1;
+        }else{
+            $sortedMiscallReport[$id]['callBackEnable'] = 0;
+        }
+    }
+    return $sortedMiscallReport;
+}
+
 function getMiscallReport(){
     $date = new DateTime();
 
