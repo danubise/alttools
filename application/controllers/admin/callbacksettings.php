@@ -8,12 +8,14 @@ class Callbacksettings extends Core_controller {
 
     public function index() {
     $addednumbers = $this->db->select("* FROM  `schedule`");
+    $callBackStatus = $this->db->select("* FROM  `settings` WHERE `key` = 'callBackStatus'",false);
     printarray($addednumbers);
     $this->view(
             array(
                 'view' => 'callback/settings',
                 'var' => array(
-                    'addednumbers' => $addednumbers
+                    'addednumbers' => $addednumbers,
+                    'callbackstatus' => $callBackStatus
                 )
             )
         );
@@ -59,6 +61,21 @@ class Callbacksettings extends Core_controller {
 
     public function delFromSettings($phonenumber){
         $checkForNumberExists = $this->db->delete(" FROM `schedule` where `phonenumber`=  '".$phonenumber."'");
+        $this->index();
+    }
+
+    public function addFromSettings(){
+
+        $phonenumber = $_POST['phonenumber'];
+        $checkForNumberExists = $this->db->select("* FROM  `schedule` WHERE `phonenumber` =  '".$phonenumber."'", false);
+        if (!is_array($checkForNumberExists)) {
+            $this->db->insert("schedule",array(
+                'phonenumber' => $phonenumber ,
+                'attempt' => 0,
+                'lasttimedial' => 0,
+                'activate' => 0
+            ));
+        }
         $this->index();
     }
 }
