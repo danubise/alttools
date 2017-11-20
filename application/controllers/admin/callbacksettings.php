@@ -37,7 +37,7 @@ class Callbacksettings extends Core_controller {
         $this->deteleNumberFromSchedule($phonenumber);
         $this->showMiscallReportPage();
     }
-    
+
     private function showMiscallReportPage(){
      $lastMiscallCDR = checkForCallbackEnable();
 
@@ -63,14 +63,16 @@ class Callbacksettings extends Core_controller {
     public function addFromSettings(){
 
         $phonenumber = $_POST['phonenumber'];
-        $checkForNumberExists = $this->db->select("* FROM  `schedule` WHERE `phonenumber` =  '".$phonenumber."'", false);
-        if (!is_array($checkForNumberExists)) {
-            $this->db->insert("schedule",array(
-                'phonenumber' => $phonenumber ,
-                'attempt' => 0,
-                'lasttimedial' => 0,
-                'activate' => 0
-            ));
+        if(!empty($phonenumber)){
+            $checkForNumberExists = $this->db->select("* FROM  `schedule` WHERE `phonenumber` =  '".$phonenumber."'", false);
+            if (!is_array($checkForNumberExists)) {
+                $this->db->insert("schedule",array(
+                    'phonenumber' => $phonenumber ,
+                    'attempt' => 0,
+                    'lasttimedial' => 0,
+                    'activate' => 0
+                ));
+            }
         }
         $this->index();
     }
