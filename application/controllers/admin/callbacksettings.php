@@ -7,13 +7,12 @@ class Callbacksettings extends Core_controller {
     }
 
     public function index() {
-    $lastMiscallCDR = getMiscallReport();
-    $addednumbers = $this->db->select("SELECT * FROM  `schedule`");
+    $addednumbers = $this->db->select("* FROM  `schedule`");
+    printarray($addednumbers);
     $this->view(
             array(
                 'view' => 'callback/settings',
                 'var' => array(
-                    'lastMiscallCDR' => $lastMiscallCDR,
                     'addednumbers' => $addednumbers
                 )
             )
@@ -56,5 +55,10 @@ class Callbacksettings extends Core_controller {
                 )
             )
         );
+    }
+
+    public function delFromSettings($phonenumber){
+        $checkForNumberExists = $this->db->delete(" FROM `schedule` where `phonenumber`=  '".$phonenumber."'");
+        $this->index();
     }
 }
