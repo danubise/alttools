@@ -3,17 +3,23 @@
  * User: danubise@gmail.com
  * Date: 15.11.17
  * Time: 10:54
-"<?=baseurl('settings/index/useradd')?>"
- */
 
+ */
+if($callbackstatus == 1){
+    $btnAction ='btn-danger';
+    $btnText = "Отключить Callback";
+}else{
+    $btnAction ='btn-success';
+    $btnText = "Включить Callback";
+}
  ?>
  <form method='post' action="<?=baseurl('callbacksettings/addFromSettings/')?>">
     <table>
         <tr>
-            <td></td>
-            <td></td>
-            <td>Новый номер:&nbsp;<input name="phonenumber" class="form-control"></td>
-            <td><button class="btn btn-primary">Добавить</button></td>
+            <td><a href="<?=baseurl('callbacksettings/enablecallback')?>" class="btn <?=$btnAction?>"><?=$btnText?></a>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>Новый номер:&nbsp;<input name="phonenumber"></td>
+            <td>&nbsp;<button class="btn btn-primary">Добавить</button></td>
         </tr>
     </table>
 </form>
