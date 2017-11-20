@@ -168,7 +168,7 @@ function sendMiscallReport(){
 
     $mail->Subject = "Пропущенные звонки ".$today;
 
-    $mail->Body    = formatHtmlPage();
+    $mail->Body    = formatHtmlPageEmail();
     $mail->AltBody = "";
 
     if(!$mail->Send())
@@ -179,7 +179,22 @@ function sendMiscallReport(){
        exit;
     }
 }
-function formatHtmlPage(){
+function formatHtmlPageEmail(){
+    $lastMiscallCDR = checkForCallbackEnable();
+    $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
+                "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th></tr></thead><tbody>";
+        foreach($lastMiscallCDR as $key=>$value){
+            $htmlCode.="<tr><td>"
+                .$value['src']."&nbsp;</td><td>"
+                .$value['calldate']."&nbsp;</td><td>"
+                .$value['did']."&nbsp;</td><td>"
+                .$value['didname']."&nbsp;</td></tr>";
+            }
+            $htmlCode.="</tbody></table>";
+    return $htmlCode;
+}
+
+function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
                 "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
