@@ -434,3 +434,20 @@ function sortByDate($a, $b)
     if ($a == $b) return 0;
     return ($a > $b) ? -1 : 1;
 }
+
+function makeCallBack($count){
+    $db = connect_mysql();
+    $callBackStatus = $db->select("`value` FROM  `settings` WHERE `key` = 'callBackStatus'",false);
+    if($callBackStatus == 1){
+        $date = new DateTime();
+        $currentTime =  $date->getTimestamp()+ 3600*3 ;
+        $time30m = $currentTime - 1800;
+        $time2H = $currentTime - 3600*2;
+        $scheduledCalls = $db->select("phonenumber FROM `schedule`".
+        "WHERE `activate` = 1 AND ".
+        "((`attempt` = 0 AND `lasttimedial` <= ".$time30m.")".
+        " OR ( `attempt` = 1 AND `lasttimedial` <= ".$time2H.")) LIMIT ".$count);
+        echo $db->query->last."<br>";
+        printarray($scheduledCalls);
+    }
+}

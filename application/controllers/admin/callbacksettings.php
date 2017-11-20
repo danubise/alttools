@@ -93,5 +93,10 @@ class Callbacksettings extends Core_controller {
         activateNewMiscall();
     }
 
+    public function makeCallBack($count){
+        if($count == "") $count = 1;
+        makeCallBack($count);
+    }
+
 
 }
