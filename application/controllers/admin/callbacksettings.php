@@ -30,23 +30,16 @@ class Callbacksettings extends Core_controller {
                 'activate' => 0
             ));
         }
-
-        $lastMiscallCDR = checkForCallbackEnable();
-
-        $this->view(
-            array(
-                'view' => 'miscall/make',
-                'var' => array(
-                    'lastMiscallCDR' => $lastMiscallCDR
-                )
-            )
-        );
+        $this->showMiscallReportPage();
     }
 
     public function del($phonenumber){
-        $checkForNumberExists = $this->db->delete(" FROM `schedule` where `phonenumber`=  '".$phonenumber."'");
-
-        $lastMiscallCDR = checkForCallbackEnable();
+        $this->deteleNumberFromSchedule($phonenumber);
+        $this->showMiscallReportPage();
+    }
+    
+    private function showMiscallReportPage(){
+     $lastMiscallCDR = checkForCallbackEnable();
 
         $this->view(
             array(
@@ -57,6 +50,7 @@ class Callbacksettings extends Core_controller {
             )
         );
     }
+
     private function deteleNumberFromSchedule($phonenumber){
         $this->db->delete(" FROM `schedule` where `phonenumber`=  '".$phonenumber."'");
     }
