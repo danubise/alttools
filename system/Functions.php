@@ -233,6 +233,55 @@ function checkForCallbackEnable(){
     return $sortedMiscallReport;
 }
 
+function activateNewMiscall(){
+    $currentReport =checkForCallbackEnable();
+    $db = connect_mysql();
+    $callBackEnableFrom = $db->select("phonenumber FROM `schedule` WHERE `activate` = 0");
+    $callBackNumbersAsKey = array();
+    foreach($callBackEnableFrom as $key => $phonenumber){
+        $callBackNumbersAsKey[$phonenumber] = 0;
+    }
+    unset($callBackEnableFrom);
+    $date = new DateTime();
+    $scheduleCurrentDial = array();
+    foreach($currentReport as $key=>$arrayData){
+        if($arrayData['callBackEnable'] == 0){
+            unset($currentReport[$key]);
+        }else{
+            if(isset($callBackNumbersAsKey[$arrayData['src']])){
+                echo "Activation for ".$arrayData['src']."<br>";
+                $db->update('schedule', array('activate' => 1,'attempt'=>0, 'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
+                unset($currentReport[$key]);
+            }
+        }
+    }
+    deactivateOldMiscall($currentReport);
+}
+
+function deactivateOldMiscall($currentReport){
+    $db = connect_mysql();
+    $callBackEnableFrom = $db->select("phonenumber FROM `schedule` WHERE `activate` = 1 AND `attempt` = 2");
+    if(is_array($callBackEnableFrom)){
+        $callBackNumbersAsKey = array();
+        foreach($callBackEnableFrom as $key => $phonenumber){
+            $callBackNumbersAsKey[$phonenumber] = 0;
+        }
+        unset($callBackEnableFrom);
+        printarray($callBackNumbersAsKey);
+        foreach($currentReport as $key=> $arrayData){
+            if(isset($callBackNumbersAsKey[$arrayData['src']])){
+                unset($callBackNumbersAsKey[$arrayData['src']]);
+            }
+        }
+        foreach($callBackNumbersAsKey as $activatedPhoneNumber =>$value){
+            echo "Deactivation for ".$activatedPhoneNumber."<br>";
+            $db->update('schedule', array('activate' => 0 ), "`phonenumber` = '".$activatedPhoneNumber."'");
+        }
+    }else{
+        echo "Have no any phone numbers for deactivation<br>";
+    }
+}
+
 function getMiscallReport(){
     $date = new DateTime();
 

@@ -89,5 +89,9 @@ class Callbacksettings extends Core_controller {
         $this->index();
     }
 
+    public function check(){
+        activateNewMiscall();
+    }
+
 
 }
