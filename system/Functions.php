@@ -7,7 +7,7 @@
  */
 require 'PHPMailer_5.2.0/class.phpmailer.php';
 require 'PHPMailer_5.2.0/class.smtp.php';
-
+require 'ami.php';
 function printarray($out) {
     echo"<pre>";
     print_r($out);
@@ -237,23 +237,27 @@ function activateNewMiscall(){
     $currentReport =checkForCallbackEnable();
     $db = connect_mysql();
     $callBackEnableFrom = $db->select("phonenumber FROM `schedule` WHERE `activate` = 0");
-    $callBackNumbersAsKey = array();
-    foreach($callBackEnableFrom as $key => $phonenumber){
-        $callBackNumbersAsKey[$phonenumber] = 0;
-    }
-    unset($callBackEnableFrom);
-    $date = new DateTime();
-    $scheduleCurrentDial = array();
-    foreach($currentReport as $key=>$arrayData){
-        if($arrayData['callBackEnable'] == 0){
-            unset($currentReport[$key]);
-        }else{
-            if(isset($callBackNumbersAsKey[$arrayData['src']])){
-                echo "Activation for ".$arrayData['src']."<br>";
-                $db->update('schedule', array('activate' => 1,'attempt'=>0, 'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
+    if(is_array($callBackEnableFrom)){
+        $callBackNumbersAsKey = array();
+        foreach($callBackEnableFrom as $key => $phonenumber){
+            $callBackNumbersAsKey[$phonenumber] = 0;
+        }
+        unset($callBackEnableFrom);
+        $date = new DateTime();
+        $scheduleCurrentDial = array();
+        foreach($currentReport as $key=>$arrayData){
+            if($arrayData['callBackEnable'] == 0){
                 unset($currentReport[$key]);
+            }else{
+                if(isset($callBackNumbersAsKey[$arrayData['src']])){
+                    echo "Activation for ".$arrayData['src']."<br>";
+                    $db->update('schedule', array('activate' => 1,'attempt'=>0, 'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
+                    unset($currentReport[$key]);
+                }
             }
         }
+    }else{
+        echo "No any new number for activation";
     }
     deactivateOldMiscall($currentReport);
 }
@@ -270,6 +274,7 @@ function deactivateOldMiscall($currentReport){
         printarray($callBackNumbersAsKey);
         foreach($currentReport as $key=> $arrayData){
             if(isset($callBackNumbersAsKey[$arrayData['src']])){
+                echo "The number ".$arrayData['src']." was not processed<br>";
                 unset($callBackNumbersAsKey[$arrayData['src']]);
             }
         }
@@ -439,6 +444,7 @@ function makeCallBack($count){
     $db = connect_mysql();
     $callBackStatus = $db->select("`value` FROM  `settings` WHERE `key` = 'callBackStatus'",false);
     if($callBackStatus == 1){
+        $settings = getSettings();
         $date = new DateTime();
         $currentTime =  $date->getTimestamp()+ 3600*3 ;
         $time30m = $currentTime - 1800;
@@ -448,6 +454,32 @@ function makeCallBack($count){
         "((`attempt` = 0 AND `lasttimedial` <= ".$time30m.")".
         " OR ( `attempt` = 1 AND `lasttimedial` <= ".$time2H.")) LIMIT ".$count);
         echo $db->query->last."<br>";
-        printarray($scheduledCalls);
+        if(is_array($scheduledCalls)){
+            $ami = new Ami();
+            $status = $ami->getConnection($settings);
+            printarray($scheduledCalls);
+            foreach($scheduledCalls as $key => $phoneNumber){
+                $dialToNumber = array(
+                    'Channel' => 'local/113@from-internal',
+                    'Exten' => $phoneNumber,
+                    'Context' => 'callback',
+                    'CallerID' => 'CallBack '.$phoneNumber,
+                   // 'Application' => 'Dial local/113@from-internal'
+                    'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
+                );
+                $event = $ami->Originate($dialToNumber);
+                $ami->execute($event);
+                $db->update('schedule',
+                    array('attempt'=>array("attempt + 1", cmd),
+                            'lasttimedial'=> $currentTime
+                        ),
+                    "`phonenumber`='".$phoneNumber."'" );
+                echo $db->query->last."</br>";
+            }
+        }else{
+            echo "No any number for callback";
+        }
+
     }
 }
+
