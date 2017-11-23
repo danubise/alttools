@@ -7,7 +7,7 @@ class Callbacksettings extends Core_controller {
     }
 
     public function index() {
-    $addednumbers = $this->db->select("* FROM  `schedule`");
+    $addednumbers = $this->db->select("* FROM  `schedule` ORDER BY `lasttimedial` DESC");
     $callBackStatus = $this->db->select("value FROM  `settings` WHERE `key` = 'callBackStatus'",false);
     $this->view(
             array(
