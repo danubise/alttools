@@ -53,6 +53,7 @@ class Callbacksettings extends Core_controller {
 
     private function deteleNumberFromSchedule($phonenumber){
         $this->db->delete(" FROM `schedule` where `phonenumber`=  '".$phonenumber."'");
+        addPhoneNumberToBlackList($phonenumber);
     }
 
     public function delFromSettings($phonenumber){
@@ -73,7 +74,9 @@ class Callbacksettings extends Core_controller {
                     'activate' => 0
                 ));
             }
+            delPhoneNumberFromBlackList($phonenumber);
         }
+
         $this->index();
     }
 

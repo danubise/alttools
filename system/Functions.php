@@ -218,16 +218,20 @@ function formatHtmlPageWeb(){
 function checkForCallbackEnable(){
     $sortedMiscallReport = getMiscallReport();
     $db = connect_mysql();
-    $callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
+    //$callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
+    $callBackEnableFrom = $db->select("phonenumber FROM `blacklist`");
+
     $callBackNumbersAsKey = array();
-    foreach($callBackEnableFrom as $key => $phonenumber){
-        $callBackNumbersAsKey[$phonenumber] = 0;
+    if(is_array($callBackEnableFrom)){
+        foreach($callBackEnableFrom as $key => $phonenumber){
+            $callBackNumbersAsKey[$phonenumber] = 0;
+        }
     }
     foreach($sortedMiscallReport as $id=> $arrayData){
         if(isset($callBackNumbersAsKey[$arrayData['src']])){
-            $sortedMiscallReport[$id]['callBackEnable'] = 1;
-        }else{
             $sortedMiscallReport[$id]['callBackEnable'] = 0;
+        }else{
+            $sortedMiscallReport[$id]['callBackEnable'] = 1;
         }
     }
     return $sortedMiscallReport;
@@ -440,6 +444,21 @@ function sortByDate($a, $b)
     return ($a > $b) ? -1 : 1;
 }
 
+function addPhoneNumberToBlackList($phonenumber){
+    $db = connect_mysql();
+    $date = new DateTime();
+    $currentTime =  $date->getTimestamp()+ 3600*3 ;
+    $db->insert("blacklist",array(
+        'phonenumber' => $phonenumber ,
+        'addeddatetime' => $currentTime
+    ));
+}
+
+function delPhoneNumberFromBlackList($phonenumber){
+    $db = connect_mysql();
+    $db->delete(" FROM `blacklist` where `phonenumber`=  '".$phonenumber."'");
+}
+
 function makeCallBack($count){
     $db = connect_mysql();
     $callBackStatus = $db->select("`value` FROM  `settings` WHERE `key` = 'callBackStatus'",false);
@@ -468,7 +487,7 @@ function makeCallBack($count){
                     'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
                 );
                 $event = $ami->Originate($dialToNumber);
-                $ami->execute($event);
+                //$ami->execute($event);
                 $db->update('schedule',
                     array('attempt'=>array("attempt + 1", cmd),
                             'lasttimedial'=> $currentTime

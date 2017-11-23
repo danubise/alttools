@@ -28,7 +28,7 @@ class Home extends Core_controller {
     public function sendScheduledReport() {
         sendMiscallReport();
     }
-    
+
     public function check(){
         activateNewMiscall();
     }
