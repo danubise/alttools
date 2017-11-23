@@ -28,4 +28,13 @@ class Home extends Core_controller {
     public function sendScheduledReport() {
         sendMiscallReport();
     }
+    
+    public function check(){
+        activateNewMiscall();
+    }
+
+    public function makeCallBack($count){
+        if($count == "") $count = 1;
+        makeCallBack($count);
+    }
 }
