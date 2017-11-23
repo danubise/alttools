@@ -239,43 +239,57 @@ function checkForCallbackEnable(){
 
 function activateNewMiscall(){
     $currentReport =checkForCallbackEnable();
+    deactivateOldMiscall($currentReport);
     $db = connect_mysql();
-    $callBackEnableFrom = $db->select("phonenumber FROM `schedule` WHERE `activate` = 0");
+    $callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
     if(is_array($callBackEnableFrom)){
         $callBackNumbersAsKey = array();
         foreach($callBackEnableFrom as $key => $phonenumber){
             $callBackNumbersAsKey[$phonenumber] = 0;
         }
-        unset($callBackEnableFrom);
-        $date = new DateTime();
-        $scheduleCurrentDial = array();
-        foreach($currentReport as $key=>$arrayData){
-            if($arrayData['callBackEnable'] == 0){
-                unset($currentReport[$key]);
+
+    }
+    unset($callBackEnableFrom);
+    $date = new DateTime();
+    $scheduleCurrentDial = array();
+    foreach($currentReport as $key=>$arrayData){
+        if($arrayData['callBackEnable'] == 0){
+            unset($currentReport[$key]);
+        }else{
+            if(isset($callBackNumbersAsKey[$arrayData['src']])){
+                echo "Exist ".$arrayData['src']."<br>";
+//                $db->update('schedule', array(
+//                    'activate' => 1,
+//                    'attempt'=>0,
+//                    'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
+                //unset($currentReport[$key]);
             }else{
-                if(isset($callBackNumbersAsKey[$arrayData['src']])){
-                    echo "Activation for ".$arrayData['src']."<br>";
-                    $db->update('schedule', array('activate' => 1,'attempt'=>0, 'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
-                    unset($currentReport[$key]);
-                }
+                echo "Activation for insert ".$arrayData['src']."<br>";
+                $db->insert("schedule",array(
+                    'phonenumber' => $arrayData['src'] ,
+                    'attempt' => 0,
+                    'lasttimedial' => $date->getTimestamp()+ 3600*3,
+                    'activate' => 1
+                ));
+                unset($currentReport[$key]);
             }
         }
-    }else{
-        echo "No any new number for activation";
     }
-    deactivateOldMiscall($currentReport);
+
+
 }
 
 function deactivateOldMiscall($currentReport){
     $db = connect_mysql();
-    $callBackEnableFrom = $db->select("phonenumber FROM `schedule` WHERE `activate` = 1 AND `attempt` = 2");
+    $callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
     if(is_array($callBackEnableFrom)){
         $callBackNumbersAsKey = array();
         foreach($callBackEnableFrom as $key => $phonenumber){
             $callBackNumbersAsKey[$phonenumber] = 0;
         }
         unset($callBackEnableFrom);
-        printarray($callBackNumbersAsKey);
+       // printarray($currentReport);
+       // printarray($callBackNumbersAsKey);
         foreach($currentReport as $key=> $arrayData){
             if(isset($callBackNumbersAsKey[$arrayData['src']])){
                 echo "The number ".$arrayData['src']." was not processed<br>";
@@ -284,7 +298,8 @@ function deactivateOldMiscall($currentReport){
         }
         foreach($callBackNumbersAsKey as $activatedPhoneNumber =>$value){
             echo "Deactivation for ".$activatedPhoneNumber."<br>";
-            $db->update('schedule', array('activate' => 0 ), "`phonenumber` = '".$activatedPhoneNumber."'");
+            //$db->update('schedule', array('activate' => 0 ), "`phonenumber` = '".$activatedPhoneNumber."'");
+            $db->delete(" FROM `schedule` where `phonenumber`=  '".$activatedPhoneNumber."'");
         }
     }else{
         echo "Have no any phone numbers for deactivation<br>";

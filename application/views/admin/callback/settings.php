@@ -13,16 +13,16 @@ if($callbackstatus == 1){
     $btnText = "Включить Callback";
 }
  ?>
- <form method='post' action="<?=baseurl('callbacksettings/addFromSettings/')?>">
+
     <table>
         <tr>
             <td><a href="<?=baseurl('callbacksettings/enablecallback')?>" class="btn <?=$btnAction?>"><?=$btnText?></a>&nbsp;</td>
             <td>&nbsp;</td>
-            <td>Новый номер:&nbsp;<input name="phonenumber"></td>
-            <td>&nbsp;<button class="btn btn-primary">Добавить</button></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
         </tr>
     </table>
-</form>
+
 
  <?
 

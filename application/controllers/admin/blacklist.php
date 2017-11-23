@@ -1,6 +1,6 @@
 <?php
 
-class Callbacksettings extends Core_controller {
+class Blacklist extends Core_controller {
     public function __construct() {
         parent::__construct();
         $this->module_name = 'Черный список CallBack';
