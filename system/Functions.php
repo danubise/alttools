@@ -505,7 +505,7 @@ function makeCallBack($count){
                     'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
                 );
                 $event = $ami->Originate($dialToNumber);
-                //$ami->execute($event);
+                $ami->execute($event);
                 $db->update('schedule',
                     array('attempt'=>array("attempt + 1", cmd),
                             'lasttimedial'=> $currentTime
