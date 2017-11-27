@@ -497,7 +497,8 @@ function makeCallBack($count){
             printarray($scheduledCalls);
             foreach($scheduledCalls as $key => $phoneNumber){
                 $dialToNumber = array(
-                    'Channel' => 'local/113@from-internal',
+                    //'Channel' => 'local/113@from-internal',
+                    'Channel' => 'local/12345678@from-trunk',
                     'Exten' => $phoneNumber,
                     'Context' => 'callback',
                     'CallerID' => 'CallBack '.$phoneNumber,
