@@ -8,15 +8,26 @@
 if($callbackstatus == 1){
     $btnAction ='btn-danger';
     $btnText = "Отключить Callback";
+    $status = "Включен";
+    $alertClass = "alert-success";
 }else{
     $btnAction ='btn-success';
     $btnText = "Включить Callback";
+    $status = "Отключен";
+    $alertClass = "alert-danger";
+}
+
+if ($this->user_model->owner->login == "admin"){
+    $activateAction = "<a href=".baseurl('callbacksettings/enablecallback').
+    " class=\"btn ".$btnAction."\">".$btnText."</a>";
+}else{
+    $activateAction = "<div class=\"alert ".$alertClass."\">Статус callback : <strong>".$status."</strong></div>";
 }
  ?>
 
     <table>
         <tr>
-            <td><a href="<?=baseurl('callbacksettings/enablecallback')?>" class="btn <?=$btnAction?>"><?=$btnText?></a>&nbsp;</td>
+            <td><?=$activateAction?>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
