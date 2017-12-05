@@ -216,9 +216,9 @@ function formatHtmlPageWeb(){
 }
 
 function checkForCallbackEnable(){
-    $sortedMiscallReport = getMiscallReport();
+    $sortedMiscallReport = getMiscallReport(false);
     $db = connect_mysql();
-    //$callBackEnableFrom = $db->select("phonenumber FROM `schedule`");
+
     $callBackEnableFrom = $db->select("phonenumber FROM `blacklist`");
 
     $callBackNumbersAsKey = array();
@@ -257,12 +257,7 @@ function activateNewMiscall(){
             unset($currentReport[$key]);
         }else{
             if(isset($callBackNumbersAsKey[$arrayData['src']])){
-               // echo "Exist ".$arrayData['src']."<br>";
-//                $db->update('schedule', array(
-//                    'activate' => 1,
-//                    'attempt'=>0,
-//                    'lasttimedial' => $date->getTimestamp()+ 3600*3 ), "`phonenumber` = '".$arrayData['src']."'");
-                //unset($currentReport[$key]);
+
             }else{
             printarray($arrayData);
                 echo "Activation for insert ".$arrayData['src']." at ".$arrayData['lasttimedial']. "<br>";
@@ -289,18 +284,17 @@ function deactivateOldMiscall($currentReport){
             $callBackNumbersAsKey[$phonenumber] = 0;
         }
         unset($callBackEnableFrom);
-       // printarray($currentReport);
-       // printarray($callBackNumbersAsKey);
+
         foreach($currentReport as $key=> $arrayData){
             if(isset($callBackNumbersAsKey[$arrayData['src']])){
-                //echo "The number ".$arrayData['src']." was not processed<br>";
+
                 unset($callBackNumbersAsKey[$arrayData['src']]);
             }
         }
         if(sizeof($callBackNumbersAsKey) > 0 ){
             foreach($callBackNumbersAsKey as $activatedPhoneNumber =>$value){
                 echo "Deactivation for ".$activatedPhoneNumber."<br>";
-                //$db->update('schedule', array('activate' => 0 ), "`phonenumber` = '".$activatedPhoneNumber."'");
+
                 $db->delete(" FROM `schedule` where `phonenumber`=  '".$activatedPhoneNumber."'");
             }
         }else{
@@ -309,7 +303,7 @@ function deactivateOldMiscall($currentReport){
     }
 }
 
-function getMiscallReport(){
+function getMiscallReport($debug){
     $date = new DateTime();
 
     $days4 =  gmdate("Y-m-d H:i:s", $date->getTimestamp() - 3600*24*4);
@@ -326,29 +320,12 @@ function getMiscallReport(){
         ORDER BY `calldate`, `uniqueid` DESC ");
 
 
-
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
-            $src = $valueArray['src'];
-            if($src[0] =="7" && strlen($src)==11){
-                $src[0] ="8";
-            }elseif( $src[0] =="+"){
 
-                if($src[1] =="7"){
-                    $src_new ="8";
-                    for($i =2; $i < strlen($src); $i++ ){
-                        $src_new.= $src[$i];
-                    }
-                    $src=$src_new;
-                }else{
-                    for($i =1; $i < strlen($src); $i++ ){
-                        $src_new.= $src[$i];
-                    }
-                    $src=$src_new;
-                }
+            $src = normalizePhoneNumber($valueArray['src']);
 
-            }
             if(isset($lastMiscallCDR[$src])){
                 if(strlen($valueArray['did']) > 0 ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
@@ -360,66 +337,56 @@ function getMiscallReport(){
             }
         }
     }
-    //printarray($lastMiscallCDR);
-    //die;
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid  FROM cdr WHERE calldate>'".$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE calldate>'"
+        .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
          if(strlen($valueArray['src'])>4){
-             $src = $valueArray['src'];
-            if($src[0] =="7" && strlen($src)==11){
-                $src[0] ="8";
-            }elseif( $src[0] =="+"){
 
-                 if($src[1] =="7"){
-                     $src_new ="8";
-                     for($i =2; $i < strlen($src); $i++ ){
-                         $src_new.= $src[$i];
-                     }
-                     $src=$src_new;
-                 }else{
-                     for($i =1; $i < strlen($src); $i++ ){
-                         $src_new.= $src[$i];
-                     }
-                     $src=$src_new;
-                 }
-
-             }
-            $lastAnsweredcallCDR[$src]=$valueArray['uniqueid'];
+            $src = normalizePhoneNumber($valueArray['src']);
+            $lastAnsweredcallCDR[$src]=$valueArray;
          }
     }
-    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid FROM cdr WHERE  calldate>'".$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE  calldate>'"
+        .$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastDialAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
          if(strlen($valueArray['dst'])>4){
-              $src = $valueArray['dst'];
-            if($src[0] =="7" && strlen($src)==11){
-                $src[0] ="8";
-            }
-            $lastDialAnsweredcallCDR[$src]=$valueArray['uniqueid'];
+            $src = normalizePhoneNumber($valueArray['dst']);
+            $lastDialAnsweredcallCDR[$src]=$valueArray;
          }
     }
+        if($debug==true) {
+            echo "lastDialAnsweredcallCDR<br>";
+            printarray($lastDialAnsweredcallCDR);
+        }
 
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastAnsweredcallCDR[$src]>= $valueArray['uniqueid']){
+        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] || $lastAnsweredcallCDR[$src]['calldate']>= $valueArray['uniqueid']){
             unset($lastMiscallCDR[$src]);
         }
     }
 
     $missedcalls = array();
     $i=0;
-    //printarray($lastMiscallCDR);
+
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastDialAnsweredcallCDR[$src]>= $valueArray['uniqueid']){
+        if($lastDialAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate']){
 
         }else{
             $missedcalls[$i] = $valueArray;
             $i++;
         }
     }
-
+    if($debug==true) {
+        echo "missedcalls<br>";
+        printarray($missedcalls);
+    }
+    unset($lastMiscallCDR);
     usort($missedcalls, 'sortByDate');
     foreach($missedcalls as $src=>$valueArray){
         if($valueArray['did'] == "777705") $missedcalls[$src]['didname']="PK krim";
@@ -444,13 +411,34 @@ function getMiscallReport(){
         if($valueArray['did'] == "79281113070" ) $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
         if($valueArray['did'] == "777713" ) $missedcalls[$src]['didname']="KOMPLEKT-UG";
         if($valueArray['did'][0] == "7" &&
-            $valueArray['did'][1] ==  "7" &&
+            $valueArray['did'][1] == "7" &&
             $valueArray['did'][2] == "0" &&
             $valueArray['did'][3] !== "") $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
         if($valueArray['did'] >= "777721" && $valueArray['did'] <= "777726") $missedcalls[$src]['didname']="KOMPLEKT-UG";
 
     }
     return $missedcalls;
+}
+
+function normalizePhoneNumber($src){
+    if($src[0] =="7" && strlen($src)==11){
+        $src[0] ="8";
+    }elseif( $src[0] =="+"){
+
+         if($src[1] =="7"){
+             $src_new ="8";
+             for($i =2; $i < strlen($src); $i++ ){
+                 $src_new.= $src[$i];
+             }
+             $src=$src_new;
+         }else{
+             for($i =1; $i < strlen($src); $i++ ){
+                 $src_new.= $src[$i];
+             }
+             $src=$src_new;
+         }
+    }
+    return $src;
 }
 
 function sortByDate($a, $b)
