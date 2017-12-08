@@ -30,6 +30,8 @@
         <div class="navbar-collapse collapse" id="navbar-main">
             <ul class="nav navbar-nav">
                 <li><a href="<?=baseurl("miscall")?>">Пропущенные звонки</a></li>
+                <li><a href="<?=baseurl("blacklist")?>">Черный список</a></li>
+                <li><a href="<?=baseurl("callbacksettings")?>">Настройки Callback</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="<?=baseurl('home/logout')?>"><i class="fa fa-power-off"></i> Выход</a></li>

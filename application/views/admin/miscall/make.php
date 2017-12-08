@@ -5,5 +5,5 @@
  * Time: 10:54
 
  */
- echo formatHtmlPage();
+ echo formatHtmlPageWeb();
 ?>

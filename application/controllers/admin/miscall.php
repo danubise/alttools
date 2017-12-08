@@ -7,7 +7,7 @@ class Miscall extends Core_controller {
     }
 
     public function index() {
-    $lastMiscallCDR = getMiscallReport();
+    $lastMiscallCDR = getMiscallReport(false);
     $this->view(
             array(
                 'view' => 'miscall/make',
