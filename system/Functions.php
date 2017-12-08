@@ -30,6 +30,8 @@ function check_controller($controller) {
 function connect_mysql() {
     global $_config;
     if(empty($_config['mysql']['user']) or empty($_config['mysql']['password'])) {
+        echo "ERROR in the config";
+        die;
         return false;
     }
     $connect = new db($_config['mysql']['host'],$_config['mysql']['user'],$_config['mysql']['password'],$_config['mysql']['base']);
@@ -389,35 +391,6 @@ function getMiscallReport($debug){
     }
     unset($lastMiscallCDR);
     usort($missedcalls, 'sortByDate');
-    foreach($missedcalls as $src=>$valueArray){
-        if($valueArray['did'] == "777705") $missedcalls[$src]['didname']="PK krim";
-        if($valueArray['did'] == "777708") $missedcalls[$src]['didname']="PK krnd";
-        if($valueArray['did'] == "79280390600") $missedcalls[$src]['didname']="PK krnd";
-        if($valueArray['did'] == "79263123712") $missedcalls[$src]['didname']="PK msk";
-        if($valueArray['did'] == "777706" || $valueArray['did'] == "777707") $missedcalls[$src]['didname']="PK rostov";
-        if($valueArray['did'] == "777729" || $valueArray['did'] == "777730") $missedcalls[$src]['didname']="Ross-Biz";
-        if($valueArray['did'] == "777727" || $valueArray['did'] == "777728") $missedcalls[$src]['didname']="Rostov-holod";
-        if($valueArray['did'] == "777701" ) $missedcalls[$src]['didname']="PK sochi";
-        if($valueArray['did'] == "79282427127" ) $missedcalls[$src]['didname']="PK sochi";
-        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
-        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
-        if($valueArray['did'] >= "777731" && $valueArray['did'] <= "777735") $missedcalls[$src]['didname']="KOMPLEKT krd";
-        if($valueArray['did'] == "777704" ) $missedcalls[$src]['didname']="KOMPLEKT krim";
-        if($valueArray['did'] == "79282073771" ) $missedcalls[$src]['didname']="KOMPLEKT krd";
-        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
-        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
-        if($valueArray['did'] == "777736" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
-        if($valueArray['did'] == "79282427747" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
-        if($valueArray['did'] == "777703" ) $missedcalls[$src]['didname']="KOMPLEKT stav";
-        if($valueArray['did'] == "79281113070" ) $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
-        if($valueArray['did'] == "777713" ) $missedcalls[$src]['didname']="KOMPLEKT-UG";
-        if($valueArray['did'][0] == "7" &&
-            $valueArray['did'][1] == "7" &&
-            $valueArray['did'][2] == "0" &&
-            $valueArray['did'][3] !== "") $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
-        if($valueArray['did'] >= "777721" && $valueArray['did'] <= "777726") $missedcalls[$src]['didname']="KOMPLEKT-UG";
-
-    }
     return $missedcalls;
 }
 
@@ -468,7 +441,7 @@ function delPhoneNumberFromBlackList($phonenumber){
 
 function makeCallBack($count){
     $db = connect_mysql();
-    $callBackStatus = $db->select("`value` FROM  `settings` WHERE `key` = 'callBackStatus'",false);
+    $callBackStatus = $db->select("`value` FROM  `settings` WHERE `keysetting` = 'callBackStatus'",false);
     if($callBackStatus == 1){
         $settings = getSettings();
         $date = new DateTime();

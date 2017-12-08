@@ -8,7 +8,7 @@ class Callbacksettings extends Core_controller {
 
     public function index() {
     $addednumbers = $this->db->select("* FROM  `schedule` ORDER BY `lasttimedial` DESC");
-    $callBackStatus = $this->db->select("value FROM  `settings` WHERE `key` = 'callBackStatus'",false);
+    $callBackStatus = $this->db->select("value FROM  `settings` WHERE `keysetting` = 'callBackStatus'",false);
 
     $this->view(
             array(
@@ -31,6 +31,7 @@ class Callbacksettings extends Core_controller {
                 'activate' => 0
             ));
         }
+        delPhoneNumberFromBlackList($phonenumber);
         $this->showMiscallReportPage();
     }
 
@@ -82,14 +83,15 @@ class Callbacksettings extends Core_controller {
     }
 
     public function enablecallback(){
-        $callBackStatus = $this->db->select("`value` FROM  `settings` WHERE `key` = 'callBackStatus'",false);
+
+        $callBackStatus = $this->db->select("`value` FROM  `settings` WHERE `keysetting` = 'callBackStatus'",false);
         if($callBackStatus == 1){
             $setStatusForCallback=0;
         }else{
             $setStatusForCallback=1;
         }
 
-        $this->db->update('settings', 'value,'.$setStatusForCallback, "`key` = 'callBackStatus'");
+        $this->db->update('settings', 'value,'.$setStatusForCallback, "`keysetting` = 'callBackStatus'");
         $this->index();
     }
 
