@@ -134,7 +134,7 @@ function utf8_to_cp1251($s)
 function settingsArrayConvert($arrayFromMysql){
     $settings = array();
     foreach($arrayFromMysql as $key=>$valueArray){
-        $settings[$valueArray['key']]= $valueArray['value'];
+        $settings[$valueArray['keysetting']]= $valueArray['value'];
     }
     return $settings;
 }
@@ -147,6 +147,7 @@ function getSettings(){
 
 function sendMiscallReport(){
     $settings = getSettings();
+    printarray ($settings);
 
     $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
     $date = new DateTime();
