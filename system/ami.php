@@ -205,6 +205,7 @@ Array
                 fputs($this->socket, $login);
                 $access = true;
                 $event ="";
+                $error = true;
                 while ($access) {
                     $data1 = fgets($this->socket);
                     if ($data1 == "\r\n") {
@@ -215,14 +216,17 @@ Array
                                     //$this->log->debug(print_r($evar, true), "ResponseAuthenticationSuccess");
                                     echo "ResponseAuthenticationSuccess";
                                     $access = false;
+                                    $error = false;
                                     break;
                                 case "Error":
                                     //$this->log->debug(print_r($evar, true), "ResponseAuthenticationError");
                                     if ($evar['Message'] == "Authentication failed") {
                                         //$this->log->error("Authentication failed", "ResponseAuthentication");
                                         echo "Authentication failed ResponseAuthentication";
-                                        die;
+
                                     }
+                                    $access = false;
+                                    $error = true;
                                     break;
                             }
                         }
@@ -232,6 +236,7 @@ Array
                 }
                 $event = "";
             }
+            return $error;
         }
     public function execute($event){
         printarray($event);

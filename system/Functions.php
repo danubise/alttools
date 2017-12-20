@@ -449,33 +449,38 @@ function makeCallBack($count){
         $currentTime =  $date->getTimestamp()+ 3600*3 ;
         $time30m = $currentTime - 1800;
         $time2H = $currentTime - 3600*2;
-        $scheduledCalls = $db->select("phonenumber FROM `schedule`".
+        $scheduledCalls = $db->select("phonenumber, destination FROM `schedule` s LEFT JOIN `routes` r ON s.route_name = r.route_name ".
         "WHERE `activate` = 1 AND ".
         "((`attempt` = 0 AND `lasttimedial` <= ".$time30m.")".
         " OR ( `attempt` = 1 AND `lasttimedial` <= ".$time2H.")) ORDER BY `lasttimedial` DESC LIMIT ".$count);
         echo $db->query->last."<br>";
+        printarray($scheduledCalls);
         if(is_array($scheduledCalls)){
             $ami = new Ami();
             $status = $ami->getConnection($settings);
-            printarray($scheduledCalls);
-            foreach($scheduledCalls as $key => $phoneNumber){
-                $dialToNumber = array(
-                    //'Channel' => 'local/113@from-internal',
-                    'Channel' => 'local/12345678@from-trunk',
-                    'Exten' => $phoneNumber,
-                    'Context' => 'callback',
-                    'CallerID' => 'CallBack '.$phoneNumber,
-                   // 'Application' => 'Dial local/113@from-internal'
-                    'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
-                );
-                $event = $ami->Originate($dialToNumber);
-                $ami->execute($event);
-                $db->update('schedule',
-                    array('attempt'=>array("attempt + 1", cmd),
-                            'lasttimedial'=> $currentTime
-                        ),
-                    "`phonenumber`='".$phoneNumber."'" );
-                echo $db->query->last."</br>";
+
+            if($status){
+                echo "Check Authentication values!";
+            }else{
+                foreach($scheduledCalls as $key => $phoneNumber){
+                    $dialToNumber = array(
+                        //'Channel' => 'local/113@from-internal',
+                        'Channel' => 'local/105@from-internal',
+                        'Exten' => $phoneNumber,
+                        'Context' => 'callback',
+                        'CallerID' => 'CallBack '.$phoneNumber,
+                       // 'Application' => 'Dial local/113@from-internal'
+                        'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
+                    );
+                    $event = $ami->Originate($dialToNumber);
+                    $ami->execute($event);
+                    $db->update('schedule',
+                        array('attempt'=>array("attempt + 1", cmd),
+                                'lasttimedial'=> $currentTime
+                            ),
+                        "`phonenumber`='".$phoneNumber."'" );
+                    echo $db->query->last."</br>";
+                }
             }
         }else{
             echo "No any number for callback";
