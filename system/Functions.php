@@ -268,7 +268,8 @@ function activateNewMiscall(){
                     'phonenumber' => $arrayData['src'] ,
                     'attempt' => 0,
                     'lasttimedial' => $date->getTimestamp()+ 3600*3,
-                    'activate' => 1
+                    'activate' => 1,
+                    'route_name' =>  $arrayData['did']
                 ));
                 unset($currentReport[$key]);
             }
@@ -449,7 +450,7 @@ function makeCallBack($count){
         $currentTime =  $date->getTimestamp()+ 3600*3 ;
         $time30m = $currentTime - 1800;
         $time2H = $currentTime - 3600*2;
-        $scheduledCalls = $db->select("phonenumber, destination FROM `schedule` s LEFT JOIN `routes` r ON s.route_name = r.route_name ".
+        $scheduledCalls = $db->select("phonenumber, destination, prefix FROM `schedule` s LEFT JOIN `routes` r ON s.route_name = r.route_name ".
         "WHERE `activate` = 1 AND ".
         "((`attempt` = 0 AND `lasttimedial` <= ".$time30m.")".
         " OR ( `attempt` = 1 AND `lasttimedial` <= ".$time2H.")) ORDER BY `lasttimedial` DESC LIMIT ".$count);
@@ -463,14 +464,21 @@ function makeCallBack($count){
                 echo "Check Authentication values!";
             }else{
                 foreach($scheduledCalls as $key => $phoneNumber){
+                    $destination = "";
+                    if($phoneNumber['destination'] != ""){
+                        $destination = $phoneNumber['destination'];
+                    }
+                    else{
+                        $destination = $settings['destination_default'];
+                    }
                     $dialToNumber = array(
                         //'Channel' => 'local/113@from-internal',
-                        'Channel' => 'local/105@from-internal',
-                        'Exten' => $phoneNumber,
-                        'Context' => 'callback',
-                        'CallerID' => 'CallBack '.$phoneNumber,
+                        'Channel' => 'local/'.$destination.'@from-internal',
+                        'Exten' => $phoneNumber['prefix'].$phoneNumber['phonenumber'],
+                        'Context' => 'from-internal',
+                        'CallerID' => 'CallBack '.$phoneNumber['phonenumber'],
                        // 'Application' => 'Dial local/113@from-internal'
-                        'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
+                       // 'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
                     );
                     $event = $ami->Originate($dialToNumber);
                     $ami->execute($event);
@@ -478,7 +486,7 @@ function makeCallBack($count){
                         array('attempt'=>array("attempt + 1", cmd),
                                 'lasttimedial'=> $currentTime
                             ),
-                        "`phonenumber`='".$phoneNumber."'" );
+                        "`phonenumber`='".$phoneNumber['phonenumber']."'" );
                     echo $db->query->last."</br>";
                 }
             }

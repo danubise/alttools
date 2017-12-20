@@ -1,24 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10.20
+-- version 4.4.15.10
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 08, 2017 at 05:33 PM
--- Server version: 5.1.73
--- PHP Version: 5.3.28
+-- Generation Time: Dec 20, 2017 at 07:26 PM
+-- Server version: 5.5.52-MariaDB
+-- PHP Version: 5.4.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
--- Database: `test`
---
 --
 -- Database: `tools`
 --
@@ -31,14 +22,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `blacklist` (
   `phonenumber` varchar(15) NOT NULL,
-  `addeddatetime` int(15) NOT NULL,
-  UNIQUE KEY `phonenumber` (`phonenumber`)
+  `addeddatetime` int(15) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `blacklist`
---
-
 
 -- --------------------------------------------------------
 
@@ -47,10 +32,20 @@ CREATE TABLE IF NOT EXISTS `blacklist` (
 --
 
 CREATE TABLE IF NOT EXISTS `groups` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `routes`
+--
+
+CREATE TABLE IF NOT EXISTS `routes` (
+  `route_name` varchar(255) NOT NULL,
+  `destination` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -63,13 +58,8 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   `attempt` int(11) NOT NULL,
   `lasttimedial` int(11) NOT NULL,
   `activate` varchar(1) NOT NULL,
-  UNIQUE KEY `phonenumber` (`phonenumber`)
+  `route_name` varchar(255) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `schedule`
---
-
 
 -- --------------------------------------------------------
 
@@ -78,27 +68,9 @@ CREATE TABLE IF NOT EXISTS `schedule` (
 --
 
 CREATE TABLE IF NOT EXISTS `settings` (
-  `key` varchar(255) NOT NULL,
-  `value` varchar(255) NOT NULL,
-  UNIQUE KEY `key` (`key`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `settings`
---
-
-INSERT INTO `settings` (`key`, `value`) VALUES
-('sendFromLogin', 'from login'),
-('sendFromPassword', 'password'),
-('sendFromEmail', 'login@yandex.ru'),
-('sendToEmail', 'touser@yandex.ru'),
-('sendToName', 'touser name'),
-('sendToEmailTemp', 'danubise@gmail.com'),
-('callBackStatus', '0'),
-('manager_host', '127.0.0.1'),
-('manager_port', '5038'),
-('manager_login', 'tools'),
-('manager_password', 'mOLpbfkSmQKXverJsUqh123');
+  `keysetting` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -107,21 +79,38 @@ INSERT INTO `settings` (`key`, `value`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `login` varchar(10) NOT NULL,
   `password` varchar(50) NOT NULL,
   `group` int(11) NOT NULL,
-  `hash` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+  `hash` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `users`
+-- Indexes for dumped tables
 --
 
-INSERT INTO `users` (`id`, `login`, `password`, `group`, `hash`) VALUES
-(1, 'admin', '0f9d6e7297001f949476162cf62d573ff3d77c36', 1, 'da39a3ee5e6b4b0d3255bfef95601890afd80709');
+--
+-- Indexes for table `blacklist`
+--
+ALTER TABLE `blacklist`
+  ADD UNIQUE KEY `phonenumber` (`phonenumber`);
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+--
+-- Indexes for table `routes`
+--
+ALTER TABLE `routes`
+  ADD PRIMARY KEY (`route_name`),
+  ADD UNIQUE KEY `name` (`route_name`);
+
+--
+-- Indexes for table `schedule`
+--
+ALTER TABLE `schedule`
+  ADD UNIQUE KEY `phonenumber` (`phonenumber`);
+
+--
+-- Indexes for table `settings`
+--
+ALTER TABLE `settings`
+  ADD UNIQUE KEY `key` (`keysetting`);
