@@ -308,7 +308,10 @@ function deactivateOldMiscall($currentReport){
 }
 
 function getMiscallReport($debug){
+    //$debug = true;
     $date = new DateTime();
+    $db = connect_mysql();
+    $prefix = $db->select("prefix from `routes`");
 
     $days4 =  gmdate("Y-m-d H:i:s", $date->getTimestamp() - 3600*24*4);
     global $_config_CDR;
@@ -344,7 +347,7 @@ function getMiscallReport($debug){
     }
 
     $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE calldate>'"
-        .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+        .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 AND dst != 's' ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -360,15 +363,27 @@ function getMiscallReport($debug){
 
     $lastDialAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
-         if(strlen($valueArray['dst'])>4){
-            $src = normalizePhoneNumber($valueArray['dst']);
-            $lastDialAnsweredcallCDR[$src]=$valueArray;
+        $dst = $valueArray['dst'];
+
+         if(strlen($dst)>4){
+             if(strlen($dst)>11){
+                 foreach($prefix as $prefixid => $prefixvalue){
+                    $pos = strpos($dst, $prefixvalue);
+                     if($pos !== false && $pos==0){
+                        $dst = substr($dst, strlen($prefixvalue));
+                        $valueArray['dst'] = $dst;
+                     }
+                 }
+             }
+            $dst = normalizePhoneNumber($dst);
+            $lastDialAnsweredcallCDR[$dst]=$valueArray;
          }
     }
         if($debug==true) {
             echo "lastDialAnsweredcallCDR<br>";
             printarray($lastDialAnsweredcallCDR);
         }
+        //die;
 
     foreach($lastMiscallCDR as $src=>$valueArray){
         if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] || $lastAnsweredcallCDR[$src]['calldate']>= $valueArray['uniqueid']){
