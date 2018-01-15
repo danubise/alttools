@@ -305,6 +305,11 @@ function deactivateOldMiscall($currentReport){
 
 function getMiscallReport($debug){
     $date = new DateTime();
+    $currentTime = "";
+    if($debug === true){
+        echo "DEBUG <br>";
+        $currentTime = " `calldate`< '2018-01-15 13:19:44' AND ";
+    }
 
     $days4 =  gmdate("Y-m-d H:i:s", $date->getTimestamp() - 3600*24*4);
     global $_config_CDR;
@@ -316,7 +321,7 @@ function getMiscallReport($debug){
     );
     $cdrdb->set_charset("utf8");
     $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
-        WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
+        WHERE ".$currentTime." `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
         ORDER BY `calldate`, `uniqueid` DESC ");
 
 
@@ -337,8 +342,11 @@ function getMiscallReport($debug){
             }
         }
     }
-
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE calldate>'"
+        if($debug==true) {
+            echo "lastMiscallcallCDR<br>";
+            printarray($lastMiscallCDR);
+        }
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE  ".$currentTime."  calldate>'"
         .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
@@ -349,8 +357,11 @@ function getMiscallReport($debug){
             $lastAnsweredcallCDR[$src]=$valueArray;
          }
     }
-
-    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE  calldate>'"
+        if($debug==true) {
+            echo "lastAnsweredcallCDR<br>";
+            printarray($lastAnsweredcallCDR);
+        }
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE  ".$currentTime."  calldate>'"
         .$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastDialAnsweredcallCDR = array();
@@ -366,7 +377,7 @@ function getMiscallReport($debug){
         }
 
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] || $lastAnsweredcallCDR[$src]['calldate']>= $valueArray['uniqueid']){
+        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] || $lastAnsweredcallCDR[$src]['uniqueid']>= $valueArray['uniqueid']){
             unset($lastMiscallCDR[$src]);
         }
     }
