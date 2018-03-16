@@ -40,19 +40,9 @@ define('SITE_TITLE', '');
  * Mysql db config
  */
 define('db_lib', libs.'mysql.php');
-$_config['mysql'] = array(
-    'host' => 'localhost',
-    'user' => 'tools',
-    'password' => 'tools',
-    'base' => 'tools'
-);
 
-$_config_CDR['mysql'] = array(
-    'host' => 'localhost',
-    'user' => 'freepbxuser',
-    'password' => 'f3c2b8bd0fa891e5ddeb040a9983148e',
-    'base' => 'asteriskcdrdb'
-);
+if(!@include("internal_config.php")) throw new Exception("Failed to include 'internal_config.php'");
+
 
 ///////////////////////////////////////////////////////////////
 /**
