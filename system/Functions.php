@@ -366,7 +366,141 @@ function getMiscallReport($debug){
         }
 
     foreach($lastMiscallCDR as $src=>$valueArray){
-        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] || $lastAnsweredcallCDR[$src]['calldate']>= $valueArray['uniqueid']){
+        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate']){
+            unset($lastMiscallCDR[$src]);
+        }
+    }
+
+    $missedcalls = array();
+    $i=0;
+
+    foreach($lastMiscallCDR as $src=>$valueArray){
+        if($lastDialAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate']){
+
+        }else{
+            $missedcalls[$i] = $valueArray;
+            $i++;
+        }
+    }
+    if($debug==true) {
+        echo "missedcalls<br>";
+        printarray($missedcalls);
+    }
+    unset($lastMiscallCDR);
+    usort($missedcalls, 'sortByDate');
+    foreach($missedcalls as $src=>$valueArray){
+        if($valueArray['did'] == "777705") $missedcalls[$src]['didname']="PK krim";
+        if($valueArray['did'] == "777708") $missedcalls[$src]['didname']="PK krnd";
+        if($valueArray['did'] == "79280390600") $missedcalls[$src]['didname']="PK krnd";
+        if($valueArray['did'] == "79263123712") $missedcalls[$src]['didname']="PK msk";
+        if($valueArray['did'] == "777706" || $valueArray['did'] == "777707") $missedcalls[$src]['didname']="PK rostov";
+        if($valueArray['did'] == "777729" || $valueArray['did'] == "777730") $missedcalls[$src]['didname']="Ross-Biz";
+        if($valueArray['did'] == "777727" || $valueArray['did'] == "777728") $missedcalls[$src]['didname']="Rostov-holod";
+        if($valueArray['did'] == "777701" ) $missedcalls[$src]['didname']="PK sochi";
+        if($valueArray['did'] == "79282427127" ) $missedcalls[$src]['didname']="PK sochi";
+        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
+        if($valueArray['did'] == "777702" ) $missedcalls[$src]['didname']="PK stavropol";
+        if($valueArray['did'] >= "777731" && $valueArray['did'] <= "777735") $missedcalls[$src]['didname']="KOMPLEKT krd";
+        if($valueArray['did'] == "777704" ) $missedcalls[$src]['didname']="KOMPLEKT krim";
+        if($valueArray['did'] == "79282073771" ) $missedcalls[$src]['didname']="KOMPLEKT krd";
+        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
+        if($valueArray['did'] == "79263123727" ) $missedcalls[$src]['didname']="KOMPLEKT msk";
+        if($valueArray['did'] == "777736" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
+        if($valueArray['did'] == "79282427747" ) $missedcalls[$src]['didname']="KOMPLEKT sochi";
+        if($valueArray['did'] == "777703" ) $missedcalls[$src]['didname']="KOMPLEKT stav";
+        if($valueArray['did'] == "79281113070" ) $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
+        if($valueArray['did'] == "777713" ) $missedcalls[$src]['didname']="KOMPLEKT-UG";
+        if($valueArray['did'][0] == "7" &&
+            $valueArray['did'][1] == "7" &&
+            $valueArray['did'][2] == "0" &&
+            $valueArray['did'][3] !== "") $missedcalls[$src]['didname']="KOMPLEKT-UG rst";
+        if($valueArray['did'] >= "777721" && $valueArray['did'] <= "777726") $missedcalls[$src]['didname']="KOMPLEKT-UG";
+
+    }
+    return $missedcalls;
+}
+
+function getMiscallReportTest($debug){
+    $date = new DateTime();
+
+    $days4 =  gmdate("Y-m-d H:i:s", $date->getTimestamp() - 3600*24*4);
+    global $_config_CDR;
+    $cdrdb = new db(
+        $_config_CDR['mysql']['host'],
+        $_config_CDR['mysql']['user'],
+        $_config_CDR['mysql']['password'],
+        $_config_CDR['mysql']['base']
+    );
+    $cdrdb->set_charset("utf8");
+
+        $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
+            WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
+            ORDER BY `calldate`, `uniqueid` DESC ");
+
+//    $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
+//        WHERE
+//        `clid` LIKE '%9045025166%'
+//        AND `src` LIKE '%9045025166%'
+//        AND `calldate` > '2018-03-14 13:32:44'
+//        AND `disposition` = 'NO ANSWER'
+//        ORDER BY `calldate`, `uniqueid` DESC ");
+
+    $lastMiscallCDR = array();
+    foreach($allCdrRecodrs as $key=>$valueArray){
+        if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
+
+            $src = normalizePhoneNumber($valueArray['src']);
+
+            if(isset($lastMiscallCDR[$src])){
+                if(strlen($valueArray['did']) > 0 ){
+                    $lastMiscallCDR[$src]['did']=$valueArray['did'];
+                }
+                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
+            }else{
+                $lastMiscallCDR[$src]=$valueArray;
+            }
+        }
+    }
+//            echo "test for lastMiscallCDR 9045025166\n";
+//    print_r($lastMiscallCDR);
+
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE
+     calldate>'"
+        .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+
+    $lastAnsweredcallCDR = array();
+    foreach($allCdrRecodrs as $key=>$valueArray){
+         if(strlen($valueArray['src'])>4){
+
+            $src = normalizePhoneNumber($valueArray['src']);
+            $lastAnsweredcallCDR[$src]=$valueArray;
+         }
+    }
+//            echo "test for lastAnsweredcallCDR 9045025166\n";
+//    print_r($lastAnsweredcallCDR);
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE
+      calldate>'"
+        .$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+//        echo "test for allCdrRecodrs 9045025166\n";
+//    print_r($allCdrRecodrs);
+    $lastDialAnsweredcallCDR = array();
+    foreach($allCdrRecodrs as $key=>$valueArray){
+         if(strlen($valueArray['dst'])>4){
+            $src = normalizePhoneNumber($valueArray['dst']);
+            $lastDialAnsweredcallCDR[$src]=$valueArray;
+         }
+    }
+        if($debug==true) {
+            echo "lastDialAnsweredcallCDR<br>";
+            printarray($lastDialAnsweredcallCDR);
+        }
+//        echo "test for lastDialAnsweredcallCDR 9045025166\n";
+//    print_r($lastDialAnsweredcallCDR);
+    foreach($lastMiscallCDR as $src=>$valueArray){
+        if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate'] ){
+        //echo "test for check 9045025166\n";
+          //  print_r($valueArray);
             unset($lastMiscallCDR[$src]);
         }
     }
