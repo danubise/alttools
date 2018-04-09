@@ -55,7 +55,7 @@ class Hlrrequest extends Core_controller {
 
             }
             else{
-                $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
+                $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop[$parametr['url'].'_login']."&password=".$prop[$parametr['url'].'_password']."&dnis=".$parametr['number'] ;
 
                 $jsonString = file_get_contents($url);
 
@@ -73,7 +73,7 @@ class Hlrrequest extends Core_controller {
                 }
             }
 
-            $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
+            $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop[$parametr['url'].'_login']."&password=".$prop[$parametr['url'].'_password']."&dnis=".$parametr['number'] ;
 
 
             $arrayWithEditedName = array();

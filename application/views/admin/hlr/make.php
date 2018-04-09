@@ -53,8 +53,6 @@
         </thead>
         <tbody>
         <?
-
-        printarray($arrayWithEditedName);
         if(isset($arrayWithEditedName)):
             foreach($arrayWithEditedName as $key=>$value):
               ?>
