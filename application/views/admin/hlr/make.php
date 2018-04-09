@@ -22,9 +22,9 @@
                 <a href="<?=baseurl('hlrrequest/editFieldName/')?>" class="btn btn-success">Редактировать</a>&nbsp;
                 </td>
             <td>
-                <select name="parametr[url]" >
-                    <option value="hlr.lanck.alarislabs.com">hlr.lanck.alarislabs.com</option>
-                    <option value="89.31.240.234" selected>89.31.240.234</option>
+                <select name="parametr[login]" >
+                    <option value="altura2">altura2</option>
+                    <option value="altura" selected>altura</option>
                 </select>
             </td>
         </tr>
