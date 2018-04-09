@@ -55,23 +55,75 @@ class Hlrrequest extends Core_controller {
 
             }
             else{
-                $url = "http://hlr.lanck.alarislabs.com/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
+                $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
 
                 $jsonString = file_get_contents($url);
+
                 //$jsonString = "{\"destination\":\"79811613861\",\"id\":\"xxta3hqi62n9urumdmzm\",\"stat\":\"DELIVRD\",\"IMSI\":\"250010027494861\",\"err\":\"0\",\"orn\":\"MTS (Mobile TeleSystems)\",\"pon\":\"MTS (Mobile TeleSystems)\",\"ron\":\"MTS (Mobile TeleSystems)\",\"roc\":\"RU\",\"mccmnc\":\"25001\",\"rcn\":\"Russian Federation\",\"ppm\":\"20\",\"onp\":\"9811\",\"ocn\":\"Russian Federation\",\"occ\":\"RU\",\"ocp\":\"7\",\"is_ported\":\"false\",\"rnp\":\"916\",\"rcp\":\"7\",\"is_roaming\":\"false\",\"pnp\":\"9145\",\"pcn\":\"Russian Federation\",\"pcp\":\"7\",\"pcc\":\"RU\"}";
                 $arrayResponse = json_decode($jsonString , true);
+                if(isset($arrayResponse['results'][0])){
+                    $arrayResponse= $this->treeToArray($arrayResponse['results'][0],"");
+                }else{
+                    $arrayResponse= $this->treeToArray($arrayResponse,"");
+                }
+                //printarray($jsonString2);
                 $this->db->delete(" from `hlr_temp`");
                 foreach($arrayResponse as $key=>$value){
                     $this->db->insert('hlr_temp', array("original"=>$key, "value"=>$value));
                 }
             }
 
-            $url = "http://hlr.lanck.alarislabs.com/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
+            $url = "http://".$parametr['url']."/hlr.cgi?login=".$prop['login']."&password=".$prop['password']."&dnis=".$parametr['number'] ;
 
 
             $arrayWithEditedName = array();
             //Пример исключения полей
             //unset($arrayResponse['id']);
+            /*
+            Array
+            (
+                [results] => Array
+                    (
+                        [0] => Array
+                            (
+                                [to] => 79878130785
+                                [mccMnc] => 25001
+                                [imsi] => 250010059119785
+                                [originalNetwork] => Array
+                                    (
+                                        [networkName] => MTS (Mobile TeleSystems)
+                                        [networkPrefix] => 987813
+                                        [countryName] => Russian Federation
+                                        [countryPrefix] => 7
+                                    )
+
+                                [ported] =>
+                                [roaming] =>
+                                [status] => Array
+                                    (
+                                        [groupId] => 3
+                                        [groupName] => DELIVERED
+                                        [id] => 5
+                                        [name] => DELIVERED_TO_HANDSET
+                                        [description] => Message delivered to handset
+                                    )
+
+                                [error] => Array
+                                    (
+                                        [groupId] => 0
+                                        [groupName] => OK
+                                        [id] => 0
+                                        [name] => NO_ERROR
+                                        [description] => No Error
+                                        [permanent] =>
+                                    )
+
+                            )
+
+                    )
+
+            )
+            */
 
             foreach($arrayResponse as $key=>$value){
                 if(isset($editedKeysArray[$key]) && $editedKeysArray[$key]!==""){
@@ -100,6 +152,22 @@ class Hlrrequest extends Core_controller {
                 )
             );
         }
+    }
+    function treeToArray($tree, $mainKey=""){
+        $resultArray = array();
+        foreach($tree as $key => $value){
+            if(is_array($value)){
+                $resultArray = array_merge($resultArray, $this->treeToArray($value, $key));
+            }else{
+                if(empty($mainKey)){
+                    $separator="";
+                }else{
+                    $separator="_";
+                }
+                $resultArray[$mainKey.$separator.$key] = $value;
+            }
+        }
+        return $resultArray;
     }
 
     public function save(){

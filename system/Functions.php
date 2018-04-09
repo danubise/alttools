@@ -127,6 +127,8 @@ function utf8_to_cp1251($s)
         return $s;
     }
 }
+
+
 function logger($data,$id=""){
     $file="/var/log/asterisk/agi.log";
     $td=date('Y-m-d H:i:s');

@@ -19,8 +19,14 @@
                 <button class="btn btn-primary">Выполнить</button></td>
             <td>&nbsp;</td>
             <td>
-                <a href="<?=baseurl('hlrrequest/editFieldName/')?>" class="btn btn-success">Редактировать</a>
+                <a href="<?=baseurl('hlrrequest/editFieldName/')?>" class="btn btn-success">Редактировать</a>&nbsp;
                 </td>
+            <td>
+                <select name="parametr[url]" >
+                    <option value="hlr.lanck.alarislabs.com">hlr.lanck.alarislabs.com</option>
+                    <option value="89.31.240.234" selected>89.31.240.234</option>
+                </select>
+            </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
     </table>
@@ -47,6 +53,8 @@
         </thead>
         <tbody>
         <?
+
+        printarray($arrayWithEditedName);
         if(isset($arrayWithEditedName)):
             foreach($arrayWithEditedName as $key=>$value):
               ?>
