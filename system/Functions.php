@@ -315,7 +315,7 @@ function getMiscallReport($debug){
         $_config_CDR['mysql']['base']
     );
     $cdrdb->set_charset("utf8");
-    $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
+    $allCdrRecodrs = $cdrdb->select("src , clid, uniqueid, calldate, did  FROM cdr
         WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
         ORDER BY `calldate`, `uniqueid` DESC ");
 
@@ -323,11 +323,22 @@ function getMiscallReport($debug){
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
-
             $src = normalizePhoneNumber($valueArray['src']);
-
             if(isset($lastMiscallCDR[$src])){
                 if(strlen($valueArray['did']) > 0 ){
+                    $lastMiscallCDR[$src]['did']=$valueArray['did'];
+                }
+                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
+            }else{
+                $lastMiscallCDR[$src]=$valueArray;
+            }
+        }elseif (strpos($valueArray['clid'], "CallBack") !== false){
+            $srcFromCallBack = normalizePhoneNumberFromCallback($valueArray['clid']);
+            $valueArray['src']= $srcFromCallBack;
+            $src = normalizePhoneNumber($srcFromCallBack);
+            if( isset($lastMiscallCDR[$src]) ){
+                if( strlen($valueArray['did']) > 0 && $valueArray['did'] != "12345678" ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
                 $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
@@ -433,7 +444,7 @@ function getMiscallReportTest($debug){
     );
     $cdrdb->set_charset("utf8");
 
-        $allCdrRecodrs = $cdrdb->select("src , uniqueid, calldate, did  FROM cdr
+        $allCdrRecodrs = $cdrdb->select("src ,clid , uniqueid, calldate, did  FROM cdr
             WHERE `calldate`>'".$days4."' AND `disposition` = 'NO ANSWER'
             ORDER BY `calldate`, `uniqueid` DESC ");
 
@@ -448,11 +459,22 @@ function getMiscallReportTest($debug){
     $lastMiscallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
         if(strlen($valueArray['src'])>4 && is_numeric($valueArray['src'])){
-
             $src = normalizePhoneNumber($valueArray['src']);
-
             if(isset($lastMiscallCDR[$src])){
                 if(strlen($valueArray['did']) > 0 ){
+                    $lastMiscallCDR[$src]['did']=$valueArray['did'];
+                }
+                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
+            }else{
+                $lastMiscallCDR[$src]=$valueArray;
+            }
+        }elseif (strpos($valueArray['clid'], "CallBack") !== false){
+            $srcFromCallBack = normalizePhoneNumberFromCallback($valueArray['clid']);
+            $valueArray['src']= $srcFromCallBack;
+            $src = normalizePhoneNumber($srcFromCallBack);
+            if( isset($lastMiscallCDR[$src]) ){
+                if( strlen($valueArray['did']) > 0){ // && $valueArray['did'] != "12345678" ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
                 $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
@@ -553,8 +575,16 @@ function getMiscallReportTest($debug){
     }
     return $missedcalls;
 }
+function normalizePhoneNumberFromCallback($clid){
+//"CallBack 79085119908" <>
+        $temp1 = explode(" ", $clid);
+        $temp1 = explode("\"", $temp1[1]);
+        //$src =$temp1[0];
+        return $temp1[0];
+}
 
 function normalizePhoneNumber($src){
+
     if($src[0] =="7" && strlen($src)==11){
         $src[0] ="8";
     }elseif( $src[0] =="+"){

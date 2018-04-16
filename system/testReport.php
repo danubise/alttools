@@ -8,9 +8,9 @@ include("Functions.php");
 
 //print_r(getMiscallReport(false));
 foreach (getMiscallReportTest(false) as $key=>$valueArray){
-    $line="";
+    $line=$key;
     foreach ($valueArray as $key1=>$value){
-        $line.="\t".$value;
+        $line.="\t| ".$key1."=>'".$value."'";
     }
     echo $line."\n";
 }
