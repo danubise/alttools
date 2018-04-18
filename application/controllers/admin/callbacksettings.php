@@ -102,5 +102,13 @@ class Callbacksettings extends Core_controller {
         makeCallBack($count);
     }
 
+    public function setCallbackInterval(){
+        $CallBackIntervalMinute = $_POST['CallBackIntervalMinute'];
+        if(is_numeric($CallBackIntervalMinute) && $CallBackIntervalMinute>=1){
+            $this->db->update('settings', 'value,'.$CallBackIntervalMinute, "`key` = 'CallBackIntervalMinute'");
+        }
+        $this->index();
+    }
+
 
 }

@@ -30,6 +30,13 @@ class Miscall extends Core_controller {
     public function send() {
         sendMiscallReport();
     }
+
+    public function makeCallBack($count){
+        if($count == "") $count = 1;
+        makeCallBack($count);
+        $this->index();
+    }
+
     public function logout() {
         $this->user_model->logout();
         header('Location: '.baseurl());

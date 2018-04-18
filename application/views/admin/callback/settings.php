@@ -5,6 +5,7 @@
  * Time: 10:54
 
  */
+$settings = getSettings();
 if($callbackstatus == 1){
     $btnAction ='btn-danger';
     $btnText = "Отключить Callback";
@@ -30,7 +31,14 @@ if ($this->user_model->owner->login == "admin"){
             <td><?=$activateAction?>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
-            <td>&nbsp;</td>
+            <td>
+            <form method="post" action="<?=baseurl('callbacksettings/setCallbackInterval') ?>">
+                Интервал дозвона&nbsp;
+                <input name="CallBackIntervalMinute" value="<?=$settings['CallBackIntervalMinute'] ?>">
+                &nbsp;
+                <button class="btn btn-primary">Сохранить</button>
+            </form>
+            </td>
         </tr>
     </table>
 

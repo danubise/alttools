@@ -197,6 +197,7 @@ function formatHtmlPageEmail(){
 function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
+    "<a href=\"".baseurl('miscall/makeCallBack')."\" class=\"btn btn-success\">CallBack</a></tr><tr>".
                 "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
@@ -673,3 +674,53 @@ function makeCallBack($count){
     }
 }
 
+function makeCallBackTest($count){
+
+    $settings = getSettings();
+    $date = new DateTime();
+    if( ($date->getTimestamp() - $settings['lastTimeCallBack'])/60 >= $settings['CallBackIntervalMinute']
+        && $settings['callBackStatus'] == 1){
+
+        $db = connect_mysql();
+        $db->update('settings',
+            array('value'=>$date->getTimestamp()),
+            "`key`='lastTimeCallBack'" );
+        echo $db->query->last."\n";
+        $currentTime =  $date->getTimestamp()+ 3600*3 ;
+        $time30m = $currentTime - 1800;
+        $time2H = $currentTime - 3600*2;
+        $scheduledCalls = $db->select("phonenumber FROM `schedule` ".
+        "WHERE `activate` = 1 AND ".
+        "((`attempt` = 0 AND `lasttimedial` <= ".$time30m.")".
+        " OR ( `attempt` = 1 AND `lasttimedial` <= ".$time2H.")) ORDER BY `lasttimedial` DESC LIMIT ".$count);
+        echo $db->query->last."\n";
+        if(is_array($scheduledCalls)){
+            $ami = new Ami();
+            $status = $ami->getConnection($settings);
+            printarray($scheduledCalls);
+            foreach($scheduledCalls as $key => $phoneNumber){
+            echo "Test function make test callbak for number ".$phonenumber."\n";
+                //$dialToNumber = array(
+                    //'Channel' => 'local/113@from-internal',
+//                    'Channel' => 'local/12345678@from-trunk',
+//                    'Exten' => $phoneNumber,
+//                    'Context' => 'callback',
+//                    'CallerID' => 'CallBack '.$phoneNumber,
+//                   // 'Application' => 'Dial local/113@from-internal'
+//                    'Variable' => array ('__DIALTONUMBER'=> 'local/'.$phonenumber.'@from-internal')
+//                );
+//                $event = $ami->Originate($dialToNumber);
+                //$ami->execute($event);
+//                $db->update('schedule',
+//                    array('attempt'=>array("attempt + 1", cmd),
+//                            'lasttimedial'=> $currentTime
+//                        ),
+//                    "`phonenumber`='".$phoneNumber."'" );
+//                echo $db->query->last."</br>";
+            }
+        }else{
+            echo "No any number for callback";
+        }
+
+    }
+}
