@@ -31,6 +31,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="<?=baseurl("miscall")?>">Пропущенные звонки</a></li>
                 <li><a href="<?=baseurl("blacklist")?>">Черный список</a></li>
+                <li><a href="<?=baseurl("manualCallBack")?>">Обзвон</a></li>
                 <li><a href="<?=baseurl("callbacksettings")?>">Настройки Callback</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">

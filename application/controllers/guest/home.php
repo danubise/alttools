@@ -37,4 +37,9 @@ class Home extends Core_controller {
         if($count == "") $count = 1;
         makeCallBack($count);
     }
+
+    public function makeCallBackManual($count){
+        if($count == "") $count = 1;
+        makeManualCallBack($count);
+    }
 }
