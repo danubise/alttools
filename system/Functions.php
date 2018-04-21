@@ -677,42 +677,46 @@ function makeCallBack($count){
 function makeManualCallBack($count){
     $settings = getSettings();
     if( $settings['manualCallBack'] == 1 ){
-        $currentReport = getMiscallReport(false);
+        $currentReport = checkForCallbackEnable();
         $date = new DateTime();
         $db = connect_mysql();
         //$dialedList = $db->select("* from `manual_callback`");
 
         //printarray( $currentReport );
         foreach ($currentReport as $index=>$numberData){
-            $existInDB = $db->select("* from `manual_callback` where `phonenumber`='".$numberData['src']."'");
-            if(is_array($existInDB)){
-                printarray($existInDB);
-                echo $numberData['src']." found <br>";
-                continue;
-            }
-            $ami = new Ami();
-            $status = $ami->getConnection($settings);
+            if($numberData['callBackEnable']==1){
+                $existInDB = $db->select("* from `manual_callback` where `phonenumber`='".$numberData['src']."'");
+                if(is_array($existInDB)){
+                    printarray($existInDB);
+                    echo $numberData['src']." found <br>";
+                    continue;
+                }
+                $ami = new Ami();
+                $status = $ami->getConnection($settings);
 
-            $dialToNumber = array(
-                'Channel' => 'local/12345678@from-trunk',
-                'Exten' => $numberData['src'],
-                'Context' => 'callback',
-                'CallerID' => 'CallBack '.$numberData['src'],
-               // 'Application' => 'Dial local/113@from-internal'
-                'Variable' => array ('__DIALTONUMBER'=> 'local/'.$numberData['src'].'@from-internal')
-            );
-            $event = $ami->Originate($dialToNumber);
-            //$ami->execute($event);
-            //2018-04-19 18:29:54
-            $db->insert('manual_callback',
-                array('phonenumber'=>$numberData['src'],
-                        'lasttime'=> $date->getTimestamp(),
-                        'count_dial'=>1,
-                        'miscallTime'=>$numberData['calldate'],
-                        'manualDialDateTime'=>$date->format('Y-m-d H:i:s')
-                    ));
-            echo $db->query->last."</br>";
-            die;
+                $dialToNumber = array(
+                    'Channel' => 'local/12345678@from-trunk',
+                    'Exten' => $numberData['src'],
+                    'Context' => 'callback',
+                    'CallerID' => 'CallBack '.$numberData['src'],
+                   // 'Application' => 'Dial local/113@from-internal'
+                    'Variable' => array ('__DIALTONUMBER'=> 'local/'.$numberData['src'].'@from-internal')
+                );
+                $event = $ami->Originate($dialToNumber);
+                $ami->execute($event);
+                //2018-04-19 18:29:54
+                $db->insert('manual_callback',
+                    array('phonenumber'=>$numberData['src'],
+                            'lasttime'=> $date->getTimestamp(),
+                            'count_dial'=>1,
+                            'miscallTime'=>$numberData['calldate'],
+                            'manualDialDateTime'=>$date->format('Y-m-d H:i:s')
+                        ));
+                echo $db->query->last."</br>";
+                die;
+            }else{
+                echo $numberData['src']." found in the blacklist <br>";
+            }
         }
         $db->update('settings',array("value"=>0),"`key`='manualCallBack'");
     }
