@@ -197,7 +197,7 @@ function formatHtmlPageEmail(){
 function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
-                "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
+                "<th>Номер</th><th>Кол-во дозвонов</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
                 $callBackStatusLink = "<a href=".baseurl('callbacksettings/add/').$value['src'].">Включить</a>";
@@ -206,6 +206,7 @@ function formatHtmlPageWeb(){
             }
             $htmlCode.="<tr><td>"
                 .$value['src']."&nbsp;</td><td>"
+                .$value['DialCount']."&nbsp;</td><td>"
                 .$value['calldate']."&nbsp;</td><td>"
                 .$value['did']."&nbsp;</td><td>"
                 .$value['didname']."&nbsp;</td><td>"
@@ -380,6 +381,32 @@ function getMiscallReport($debug){
     foreach($lastMiscallCDR as $src=>$valueArray){
         if($lastAnsweredcallCDR[$src]['calldate']>= $valueArray['calldate']){
             unset($lastMiscallCDR[$src]);
+        }
+    }
+
+    $operatorDialStatistic = $cdrdb->select("dst ".
+    "FROM `cdr` WHERE calldate>'".$days4.
+    "' AND `clid` NOT LIKE  '%CallBack %' AND  `dcontext` LIKE  'from-internal'".
+    " AND  `lastapp` LIKE  'Dial' AND  `cnam` NOT LIKE  '%Callback%'");
+
+    $operDialStat = array();
+    foreach($operatorDialStatistic as $key=>$valueArray){
+        $src = normalizePhoneNumber($valueArray);
+        //$operDialStat[$src]=$valueArray['DialCount'];
+        if(isset($operDialStat[$src]['DialCount'])){
+            $operDialStat[$src]['DialCount']=$operDialStat[$src]['DialCount'] + 1;
+        }else{
+            $operDialStat[$src]['DialCount']=1;
+        }
+    }
+
+    unset($operatorDialStatistic);
+
+    foreach($lastMiscallCDR as $src=>$valueArray){
+        if(isset($operDialStat[$src])){
+            $lastMiscallCDR[$src]['DialCount'] = $operDialStat[$src]['DialCount'];
+        }else{
+            $lastMiscallCDR[$src]['DialCount'] = 0;
         }
     }
 
