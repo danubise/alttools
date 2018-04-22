@@ -527,6 +527,31 @@ function getMiscallReportTest($debug){
             unset($lastMiscallCDR[$src]);
         }
     }
+    $operatorDialStatistic = $cdrdb->select("dst ".
+    "FROM `cdr` WHERE calldate>'".$days4.
+    "' AND `clid` NOT LIKE  '%CallBack %' AND  `dcontext` LIKE  'from-internal'".
+    " AND  `lastapp` LIKE  'Dial' AND  `cnam` NOT LIKE  '%Callback%'");
+    echo $cdrdb->query->last."\n";
+    $operDialStat = array();
+    foreach($operatorDialStatistic as $key=>$valueArray){
+        $src = normalizePhoneNumber($valueArray);
+        //$operDialStat[$src]=$valueArray['DialCount'];
+        if(isset($operDialStat[$src]['DialCount'])){
+            $operDialStat[$src]['DialCount']=$operDialStat[$src]['DialCount'] + 1;
+        }else{
+            $operDialStat[$src]['DialCount']=1;
+        }
+    }
+
+    unset($operatorDialStatistic);
+
+    foreach($lastMiscallCDR as $src=>$valueArray){
+        if(isset($operDialStat[$src])){
+            $lastMiscallCDR[$src]['DialCount'] = $operDialStat[$src]['DialCount'];
+        }else{
+            $lastMiscallCDR[$src]['DialCount'] = 0;
+        }
+    }
 
     $missedcalls = array();
     $i=0;
