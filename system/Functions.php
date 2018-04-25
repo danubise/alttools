@@ -384,26 +384,22 @@ function getMiscallReport($debug){
         }
     }
 
-//    $operatorDialStatistic = $cdrdb->select("dst ".
-//    "FROM `cdr` WHERE calldate>'".$days4.
-//    "' AND `clid` NOT LIKE  '%CallBack %' AND  `dcontext` LIKE  'from-internal'".
-//    " AND  `lastapp` LIKE  'Dial' AND  `cnam` NOT LIKE  '%Callback%'");
-//    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
-//    "WHERE calldate>'".$days4.
-//    "' AND lastapp =  'Dial' ".
-//    "AND CHAR_LENGTH( dst ) >3 ".
-//    "GROUP BY dst".
-//    " ORDER BY  `calldate` DESC ");
-//
-//    $operDialStat = array();
-//    foreach($lastCallDateStatistic as $key=>$valueArray){
-//        $dst = normalizePhoneNumber($valueArray['dst']);
-//        if(isset($lastMiscallCDR[$dst])){
-//            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate']
-//        }
-//    }
-//
-//    unset($lastCallDateStatistic);
+    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
+    "WHERE calldate>'".$days4.
+    "' AND lastapp =  'Dial' ".
+    "AND CHAR_LENGTH( dst ) >3 ".
+    "GROUP BY dst".
+    " ORDER BY  `calldate` DESC ");
+
+    $operDialStat = array();
+    foreach($lastCallDateStatistic as $key=>$valueArray){
+        $dst = normalizePhoneNumber($valueArray['dst']);
+        if(isset($lastMiscallCDR[$dst])){
+            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate'];
+        }
+    }
+
+    unset($lastCallDateStatistic);
 
     $missedcalls = array();
     $i=0;
@@ -561,7 +557,7 @@ function getMiscallReportTest($debug){
     foreach($lastCallDateStatistic as $key=>$valueArray){
         $dst = normalizePhoneNumber($valueArray['dst']);
         if(isset($lastMiscallCDR[$dst])){
-            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate']
+            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate'];
         }
     }
 
