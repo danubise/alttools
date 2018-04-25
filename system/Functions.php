@@ -197,7 +197,7 @@ function formatHtmlPageEmail(){
 function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
-                "<th>Номер</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
+                "<th>Номер</th><th>Время последнего дозвона</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
                 $callBackStatusLink = "<a href=".baseurl('callbacksettings/add/').$value['src'].">Включить</a>";
@@ -206,6 +206,7 @@ function formatHtmlPageWeb(){
             }
             $htmlCode.="<tr><td>"
                 .$value['src']."&nbsp;</td><td>"
+                .$value['lastcalldate']."&nbsp;</td><td>"
                 .$value['calldate']."&nbsp;</td><td>"
                 .$value['did']."&nbsp;</td><td>"
                 .$value['didname']."&nbsp;</td><td>"
@@ -383,6 +384,27 @@ function getMiscallReport($debug){
         }
     }
 
+//    $operatorDialStatistic = $cdrdb->select("dst ".
+//    "FROM `cdr` WHERE calldate>'".$days4.
+//    "' AND `clid` NOT LIKE  '%CallBack %' AND  `dcontext` LIKE  'from-internal'".
+//    " AND  `lastapp` LIKE  'Dial' AND  `cnam` NOT LIKE  '%Callback%'");
+//    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
+//    "WHERE calldate>'".$days4.
+//    "' AND lastapp =  'Dial' ".
+//    "AND CHAR_LENGTH( dst ) >3 ".
+//    "GROUP BY dst".
+//    " ORDER BY  `calldate` DESC ");
+//
+//    $operDialStat = array();
+//    foreach($lastCallDateStatistic as $key=>$valueArray){
+//        $dst = normalizePhoneNumber($valueArray['dst']);
+//        if(isset($lastMiscallCDR[$dst])){
+//            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate']
+//        }
+//    }
+//
+//    unset($lastCallDateStatistic);
+
     $missedcalls = array();
     $i=0;
 
@@ -527,6 +549,23 @@ function getMiscallReportTest($debug){
             unset($lastMiscallCDR[$src]);
         }
     }
+
+    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
+    "WHERE calldate>'".$days4.
+    "' AND lastapp =  'Dial' ".
+    "AND CHAR_LENGTH( dst ) >3 ".
+    "GROUP BY dst".
+    " ORDER BY  `calldate` DESC ");
+
+    $operDialStat = array();
+    foreach($lastCallDateStatistic as $key=>$valueArray){
+        $dst = normalizePhoneNumber($valueArray['dst']);
+        if(isset($lastMiscallCDR[$dst])){
+            $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate']
+        }
+    }
+
+    unset($lastCallDateStatistic);
 
     $missedcalls = array();
     $i=0;
