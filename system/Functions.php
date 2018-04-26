@@ -343,7 +343,7 @@ function getMiscallReport($debug){
                 if( strlen($valueArray['did']) > 0 && $valueArray['did'] != "12345678" ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
-                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                //$lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
                 $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
             }else{
                 $lastMiscallCDR[$src]=$valueArray;
@@ -394,7 +394,7 @@ function getMiscallReport($debug){
     $operDialStat = array();
     foreach($lastCallDateStatistic as $key=>$valueArray){
         $dst = normalizePhoneNumber($valueArray['dst']);
-        if(isset($lastMiscallCDR[$dst])){
+        if(isset($lastMiscallCDR[$dst]) && $lastMiscallCDR[$dst]['calldate'] < $valueArray['lastcalldate']){
             $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate'];
         }
     }
@@ -496,7 +496,7 @@ function getMiscallReportTest($debug){
                 if( strlen($valueArray['did']) > 0){ // && $valueArray['did'] != "12345678" ){
                     $lastMiscallCDR[$src]['did']=$valueArray['did'];
                 }
-                $lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
+                //$lastMiscallCDR[$src]['calldate']=$valueArray['calldate'];
                 $lastMiscallCDR[$src]['uniqueid']=$valueArray['uniqueid'];
             }else{
                 $lastMiscallCDR[$src]=$valueArray;
@@ -504,11 +504,12 @@ function getMiscallReportTest($debug){
         }
     }
 //            echo "test for lastMiscallCDR 9045025166\n";
-//    print_r($lastMiscallCDR);
+    echo $cdrdb->query->last."\n";
+    print_r($lastMiscallCDR["89184877799"]);
 
-    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE
-     calldate>'"
-        .$days4."'  AND  disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+    $allCdrRecodrs = $cdrdb->select("src , calldate, uniqueid ,billsec  FROM cdr WHERE calldate>'" .$days4.
+    "' AND disposition = 'ANSWERED' AND  CHAR_LENGTH( src ) >3 AND lastapp = 'Dial'".
+    " ORDER BY `calldate`,`uniqueid` DESC ");
 
     $lastAnsweredcallCDR = array();
     foreach($allCdrRecodrs as $key=>$valueArray){
@@ -518,11 +519,12 @@ function getMiscallReportTest($debug){
             $lastAnsweredcallCDR[$src]=$valueArray;
          }
     }
-//            echo "test for lastAnsweredcallCDR 9045025166\n";
-//    print_r($lastAnsweredcallCDR);
-    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE
-      calldate>'"
-        .$days4."' AND disposition = 'ANSWERED' AND billsec>4 ORDER BY `calldate`,`uniqueid` DESC ");
+    echo $cdrdb->query->last."\n";
+    print_r($lastMiscallCDR["89184877799"]);
+
+    $allCdrRecodrs = $cdrdb->select("dst , calldate, uniqueid, billsec FROM cdr WHERE calldate>'".$days4.
+    "' AND disposition =  'ANSWERED' AND billsec >4 AND CHAR_LENGTH( src ) >3 AND lastapp =  'Dial' ".
+    "ORDER BY `calldate`,`uniqueid` DESC ");
 //        echo "test for allCdrRecodrs 9045025166\n";
 //    print_r($allCdrRecodrs);
     $lastDialAnsweredcallCDR = array();
@@ -545,6 +547,8 @@ function getMiscallReportTest($debug){
             unset($lastMiscallCDR[$src]);
         }
     }
+    echo $cdrdb->query->last."\n";
+    print_r($lastMiscallCDR["89184877799"]);
 
     $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
     "WHERE calldate>'".$days4.
@@ -560,7 +564,9 @@ function getMiscallReportTest($debug){
             $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate'];
         }
     }
-
+    echo $cdrdb->query->last."\n";
+    print_r($lastMiscallCDR["89184877799"]);
+    die;
     unset($lastCallDateStatistic);
 
     $missedcalls = array();
