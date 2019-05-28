@@ -198,13 +198,14 @@ function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "
 Пропущенный звонок уходит из списка при телефонном разговоре более 4 секунд!<br>
+<h4>Пропущенные номера</h4>
 <table class=\"table table-striped\" id=\"tableNum\">
-<thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
-                "<th>Номер</th>
+<thead><tr><th>Номер</th>
 <th>Время последнего дозвона</th>
 <th>Время</th>
 <th>Попытки</th>
 <th>CallBack</th>
+<th>Комментарий</th>
 </tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
@@ -219,7 +220,15 @@ function formatHtmlPageWeb(){
                 .$value['attempt']."&nbsp;</td><td>"
                // .$value['did']."&nbsp;</td><td>"
                // .$value['didname']."&nbsp;</td><td>"
-                .$callBackStatusLink."&nbsp;</td></tr>";
+                .$callBackStatusLink."&nbsp;</td>
+    <td>
+        <form method='post' action=\"".baseurl('miscall/addcomment/')."\">
+            <input type='text' name='data[comment]' value='".$value['comment']."'>
+            <input type='hidden' name='data[src]' value='".$value['src']."'> 
+            <input type='submit' value='Сохранить' name='addcomment'>
+        </form>
+    </td>
+</tr>";
             }
             $htmlCode.="</tbody></table>";
     return $htmlCode;
@@ -228,7 +237,13 @@ function formatHtmlPageWeb(){
 function checkForCallbackEnable(){
     $sortedMiscallReport = getMiscallReport(false);
     $db = connect_mysql();
-
+    $comments = $db->select("* FROM `comments`");
+    $commentsByPhone = array();
+    if(is_array($comments)){
+        foreach($comments as $key => $data){
+            $commentsByPhone[$data['src']] = $data['comment'];
+        }
+    }
     $callBackEnableFrom = $db->select("phonenumber FROM `blacklist`");
 
     $callBackNumbersAsKey = array();
@@ -238,6 +253,9 @@ function checkForCallbackEnable(){
         }
     }
     foreach($sortedMiscallReport as $id=> $arrayData){
+        if(isset($commentsByPhone[$arrayData['src']])){
+            $sortedMiscallReport[$id]['comment'] = $commentsByPhone[$arrayData['src']];
+        }
         if(isset($callBackNumbersAsKey[$arrayData['src']])){
             $sortedMiscallReport[$id]['callBackEnable'] = 0;
         }else{

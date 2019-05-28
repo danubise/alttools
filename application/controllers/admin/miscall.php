@@ -27,6 +27,22 @@ class Miscall extends Core_controller {
         );
 
     }
+    public function addcomment() {
+        //Array
+        //(
+        //    [data] => Array
+        //        (
+        //            [comment] => sdfsdf
+        //            [src] => 79002333150
+        //        )
+        //
+        //    [addcomment] => Сохранить
+        //)
+        $this->db->delete("from `comments` where `src`='".$_POST['data']['src']."'");
+        $this->db->insert("comments", $_POST['data']);
+        $this->index();
+
+    }
     public function send() {
         sendMiscallReport();
     }
