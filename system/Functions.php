@@ -196,8 +196,16 @@ function formatHtmlPageEmail(){
 
 function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
-    $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
-                "<th>Номер</th><th>Время последнего дозвона</th><th>Время</th><th>CallBack</th></tr></thead><tbody>";
+    $htmlCode = "
+Пропущенный звонок уходит из списка при телефонном разговоре более 4 секунд!<br>
+<table class=\"table table-striped\" id=\"tableNum\">
+<thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
+                "<th>Номер</th>
+<th>Время последнего дозвона</th>
+<th>Время</th>
+<th>Попытки</th>
+<th>CallBack</th>
+</tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
                 $callBackStatusLink = "<a href=".baseurl('callbacksettings/add/').$value['src'].">Включить</a>";
@@ -208,6 +216,7 @@ function formatHtmlPageWeb(){
                 .$value['src']."&nbsp;</td><td>"
                 .$value['lastcalldate']."&nbsp;</td><td>"
                 .$value['calldate']."&nbsp;</td><td>"
+                .$value['attempt']."&nbsp;</td><td>"
                // .$value['did']."&nbsp;</td><td>"
                // .$value['didname']."&nbsp;</td><td>"
                 .$callBackStatusLink."&nbsp;</td></tr>";
@@ -384,7 +393,7 @@ function getMiscallReport($debug){
         }
     }
 
-    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst FROM `cdr` ".
+    $lastCallDateStatistic = $cdrdb->select(" MAX( calldate ) AS lastcalldate, dst,  COUNT( * ) AS attempt FROM `cdr` ".
     "WHERE calldate>'".$days4.
     "' AND lastapp =  'Dial' ".
     "AND CHAR_LENGTH( dst ) >3 ".
@@ -396,6 +405,7 @@ function getMiscallReport($debug){
         $dst = normalizePhoneNumber($valueArray['dst']);
         if(isset($lastMiscallCDR[$dst]) && $lastMiscallCDR[$dst]['calldate'] < $valueArray['lastcalldate']){
             $lastMiscallCDR[$dst]['lastcalldate'] = $valueArray['lastcalldate'];
+            $lastMiscallCDR[$dst]['attempt'] = $valueArray['attempt'];
         }
     }
 
