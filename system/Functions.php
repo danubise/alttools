@@ -197,7 +197,7 @@ function formatHtmlPageEmail(){
 function formatHtmlPageWeb(){
     $lastMiscallCDR = checkForCallbackEnable();
     $htmlCode = "<table class=\"table table-striped\" id=\"tableNum\"><thead><tr><th><h4>Пропущенные номера</h4></th></tr><tr>".
-                "<th>Номер</th><th>Время последнего дозвона</th><th>Время</th><th>DID</th><th>Канал</th><th>CallBack</th></tr></thead><tbody>";
+                "<th>Номер</th><th>Время последнего дозвона</th><th>Время</th><th>CallBack</th></tr></thead><tbody>";
         foreach($lastMiscallCDR as $key=>$value){
             if($value['callBackEnable'] == 0){
                 $callBackStatusLink = "<a href=".baseurl('callbacksettings/add/').$value['src'].">Включить</a>";
@@ -208,8 +208,8 @@ function formatHtmlPageWeb(){
                 .$value['src']."&nbsp;</td><td>"
                 .$value['lastcalldate']."&nbsp;</td><td>"
                 .$value['calldate']."&nbsp;</td><td>"
-                .$value['did']."&nbsp;</td><td>"
-                .$value['didname']."&nbsp;</td><td>"
+               // .$value['did']."&nbsp;</td><td>"
+               // .$value['didname']."&nbsp;</td><td>"
                 .$callBackStatusLink."&nbsp;</td></tr>";
             }
             $htmlCode.="</tbody></table>";
